@@ -1,0 +1,30 @@
+{
+  "project": "loop-engine",
+  "url": "http://localhost:3099/loop",
+  "avatar_bg": "#a855f7",
+  "avatar_text": "LE",
+  "updated": "2026-06-16T10:00:00+08:00",
+  "health": {
+    "alarm":       { "status": "ok",   "score": 3, "detail": "alarm/loop-tasks.json 定义 3 任务 · register.ps1 → aion-kit · scheduler.ps1 → schtasks 零依赖" },
+    "workstation": { "status": "ok",   "score": 2, "detail": "串行模式 · 无并行需求 · 天然隔离" },
+    "knowledge":   { "status": "ok",   "score": 3, "detail": "CLAUDE.md + loop-audit/loop-init skills + handbook/docs/ + handbook/prompts/" },
+    "connectors":  { "status": "ok",   "score": 2, "detail": "agentboard API · wire/notify.ps1 已就位 · 飞书 webhook 待配置" },
+    "inspector":   { "status": "warn", "score": 2, "detail": "inspector/verify.js 已就位（交叉验证+古德哈特防护）· 待实际运行验证" },
+    "notebook":    { "status": "ok",   "score": 2, "detail": "health.json + events.jsonl · 不驱动决策（本项目无每日执行任务）" },
+    "escalation":  { "status": "ok",   "score": 2, "detail": "escalation/rules.json L0-L3 四级规则 · wire/notify.ps1 飞书推送" },
+    "goals":       { "status": "ok",   "score": 2, "detail": "系统目标已定义 · goals/completion-criteria.md 已就位 · 降级方案已定义待演练" }
+  },
+  "today": {
+    "jobs_total": 0,
+    "jobs_completed": 0,
+    "jobs_failed": 0,
+    "last_run": "--",
+    "last_output": null
+  },
+  "escalation": {
+    "active_alerts": 0,
+    "last_escalated": null
+  },
+  "audit_score": 2.25,
+  "audit_date": "2026-06-16"
+}

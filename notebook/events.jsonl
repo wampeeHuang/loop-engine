@@ -1,0 +1,4 @@
+# events.jsonl — 事件日志
+# 每行一条 JSON，只追加不修改。
+# 格式: {"ts":"ISO8601","event":"事件类型","detail":{...}}
+# 事件类型: daily-self-audit | cross-check | escalation | manual | init

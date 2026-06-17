@@ -1,0 +1,70 @@
+{
+  "$description": "loop-engine — 分级提报规则。L0自动/L1汇总/L2提报/L3阻断。",
+  "channels": {
+    "feishu_webhook": "",
+    "note": "webhook URL 也可从环境变量 FEISHU_WEBHOOK 读取。此处为空时自动回退到环境变量"
+  },
+  "rules": [
+    {
+      "level": "L0",
+      "trigger": "首次失败",
+      "condition": "exit_code != 0 AND retry_count < 3",
+      "action": "自动重试，等待 60s",
+      "notify": false
+    },
+    {
+      "level": "L0",
+      "trigger": "重试耗尽",
+      "condition": "exit_code != 0 AND retry_count >= 3",
+      "action": "标记'今天失败'，明天自动重试",
+      "notify": false
+    },
+    {
+      "level": "L1",
+      "trigger": "当天任务完成",
+      "condition": "jobs_failed == 0 AND jobs_completed == jobs_total",
+      "action": "产生日报摘要，写入 events.jsonl",
+      "notify": false
+    },
+    {
+      "level": "L2",
+      "trigger": "连续异常",
+      "condition": "同一 job 连续 2 天失败",
+      "action": "推送飞书消息，等人确认。24h 无人确认升级 L3",
+      "notify": true,
+      "channel": "feishu"
+    },
+    {
+      "level": "L2",
+      "trigger": "数据量异常",
+      "condition": "jobs_completed > 0 AND 产出数量较昨天下降 > 50%",
+      "action": "推送飞书消息，附上昨天 vs 今天的数量对比",
+      "notify": true,
+      "channel": "feishu"
+    },
+    {
+      "level": "L2",
+      "trigger": "健康分下降",
+      "condition": "audit_score 较上次下降 > 0.5 或任一组件从 ok 降到 missing",
+      "action": "推送飞书消息，列出降级组件",
+      "notify": true,
+      "channel": "feishu"
+    },
+    {
+      "level": "L3",
+      "trigger": "阻断级故障",
+      "condition": "API key 失效 OR 连续 3 天同任务失败 OR health.json 超过 48h 未更新",
+      "action": "立即推送 + 停止当天所有任务 + 等人处理",
+      "notify": true,
+      "channel": "feishu"
+    },
+    {
+      "level": "L3",
+      "trigger": "面板不可用",
+      "condition": "agentboard :3099/loop 返回非 200 持续超过 30min",
+      "action": "推送告警。面板挂了不影响项目运行，但需要修。",
+      "notify": true,
+      "channel": "feishu"
+    }
+  ]
+}

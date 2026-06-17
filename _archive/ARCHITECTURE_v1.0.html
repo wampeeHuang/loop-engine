@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loop Engine 架构设计</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --dim: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d2991d;
+    --red: #f85149;
+    --purple: #a371f7;
+    --bone: #f0c6c6;
+    --meat: #c6d7f0;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.6; padding: 40px 20px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  h1 { font-size: 2em; margin-bottom: 4px; }
+  h2 { font-size: 1.4em; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 1.1em; margin: 24px 0 12px; color: var(--accent); }
+  .subtitle { color: var(--dim); margin-bottom: 32px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 24px; margin-bottom: 20px;
+  }
+  .card.warn { border-color: var(--orange); }
+  .card.ok { border-color: var(--green); }
+  .checklist { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .checklist li { padding: 8px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; }
+  .checklist li::before { content: '☐ '; color: var(--dim); margin-right: 6px; }
+  .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .cmp-col { padding: 20px; border-radius: 8px; border: 1px solid var(--border); }
+  .cmp-col.a { background: #1a1018; border-color: #4a2545; }
+  .cmp-col.b { background: #10181a; border-color: #25454a; }
+  .cmp-col .label { font-weight: bold; font-size: 1.1em; margin-bottom: 12px; }
+  .cmp-col.a .label { color: #e879a0; }
+  .cmp-col.b .label { color: #58a6ff; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--dim); font-weight: 500; font-size: 0.85em; text-transform: uppercase; }
+  td.verdict { font-weight: bold; }
+  td.best { color: var(--green); }
+  td.worst { color: var(--orange); }
+  .tree {
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.9em; line-height: 1.8; padding: 16px 20px;
+    background: #0d1117; border-radius: 6px; border: 1px solid var(--border);
+    overflow-x: auto; white-space: pre;
+  }
+  .tree .bone { color: #f0c6c6; }
+  .tree .meat { color: #c6d7f0; }
+  .tree .iface { color: #a371f7; }
+  .tree .dim { color: #8b949e; }
+  .arch {
+    display: flex; gap: 12px; align-items: stretch; margin: 16px 0; flex-wrap: wrap;
+  }
+  .arch-box {
+    background: var(--card); border: 2px solid var(--border); border-radius: 8px;
+    padding: 16px; min-width: 180px; flex: 1;
+  }
+  .arch-box.agentboard { border-color: #f0c6c6; }
+  .arch-box.project { border-color: #c6d7f0; }
+  .arch-box h4 { margin-bottom: 8px; font-size: 0.95em; }
+  .arch-box.agentboard h4 { color: #f0c6c6; }
+  .arch-box.project h4 { color: #c6d7f0; }
+  .arch-box ul { list-style: none; font-size: 0.85em; }
+  .arch-box li { padding: 3px 0; color: var(--dim); }
+  .arch-box li.key { color: var(--text); }
+  .arch-arrow {
+    display: flex; align-items: center; font-size: 1.4em; color: var(--purple);
+    min-width: 40px; justify-content: center;
+  }
+  .legend { display: flex; gap: 16px; margin: 8px 0 16px; font-size: 0.85em; }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .legend .dot.bone { background: #f0c6c6; }
+  .legend .dot.meat { background: #c6d7f0; }
+  .legend .dot.iface { background: #a371f7; }
+  .principle {
+    border-left: 3px solid var(--green); padding: 10px 16px;
+    background: rgba(63,185,80,0.08); border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+  }
+  .principle .p-title { font-weight: bold; color: var(--green); margin-bottom: 4px; }
+  .choice {
+    background: linear-gradient(135deg, rgba(88,166,255,0.10), rgba(163,113,247,0.10));
+    border: 2px solid var(--accent); border-radius: 12px;
+    padding: 28px; margin: 24px 0;
+  }
+  .choice h2 { border: none; margin-top: 0; color: var(--accent); }
+  .choice .tag { display: inline-block; padding: 2px 10px; background: var(--accent); color: #fff; border-radius: 12px; font-size: 0.75em; margin-left: 8px; vertical-align: middle; }
+  .sop-step { display: flex; gap: 16px; margin: 16px 0; align-items: flex-start; }
+  .sop-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent); color: #fff; display: flex;
+    align-items: center; justify-content: center; font-weight: bold;
+    flex-shrink: 0; font-size: 0.9em;
+  }
+  .sop-body { flex: 1; }
+  .sop-body h4 { margin-bottom: 4px; }
+  .sop-body p { color: var(--dim); font-size: 0.9em; }
+  nav {
+    position: fixed; top: 0; left: 0; width: 220px; height: 100vh;
+    background: var(--card); border-right: 1px solid var(--border);
+    padding: 24px 16px; overflow-y: auto; z-index: 10;
+    font-size: 0.85em;
+  }
+  nav h4 { color: var(--dim); font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+  nav a { display: block; color: var(--dim); text-decoration: none; padding: 5px 8px; border-radius: 4px; margin-bottom: 2px; transition: 0.15s; }
+  nav a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  nav a.active { color: var(--accent); background: rgba(88,166,255,0.08); }
+  nav .sep { border-top: 1px solid var(--border); margin: 10px 0; }
+  body { margin-left: 240px; }
+  .ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .ref-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 16px; font-size: 0.9em;
+  }
+  .ref-card .ref-title { font-weight: bold; margin-bottom: 4px; }
+  .ref-card .ref-from { color: var(--dim); font-size: 0.8em; }
+  .ref-card .ref-body { color: var(--dim); margin-top: 8px; line-height: 1.5; }
+  .ref-card.q { border-color: #4a2545; }
+  .ref-card.q .ref-title { color: #e879a0; }
+  .ref-card.d { border-color: #25454a; }
+  .ref-card.d .ref-title { color: #58a6ff; }
+  .ref-card.m { border-color: #3a4525; }
+  .ref-card.m .ref-title { color: #d2991d; }
+  @media (max-width: 900px) {
+    nav { display: none; }
+    body { margin-left: 0; }
+    .ref-grid { grid-template-columns: 1fr; }
+    .cmp { grid-template-columns: 1fr; }
+    .checklist { grid-template-columns: 1fr; }
+    .arch { flex-direction: column; }
+    .arch-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <h4>📋 架构设计</h4>
+  <a href="#ref">参考来源</a>
+  <a href="#req">1. 需求清单</a>
+  <a href="#cmp">2. 联邦制两种形态</a>
+  <a href="#dir">3. 文件夹标准化</a>
+  <a href="#rel">4. 组件关系</a>
+  <a href="#best">5. 最优方案</a>
+  <a href="#sop">6. SOP</a>
+  <a href="#log">7. 决策记录</a>
+  <div class="sep"></div>
+  <a href="#foot" style="font-size:0.8em;">脚注 · 钟匠寓言检验</a>
+</nav>
+
+<h1>Loop Engine 架构设计</h1>
+<p class="subtitle">2026-06-15 · 骨肉分离联邦架构 · v1.0 draft</p>
+
+<!-- ==================== 0. 参考来源 ==================== -->
+<h2 id="ref">0. 参考来源</h2>
+<p>本架构设计的知识底座。三层：一手理论 → 实战案例 → 本地上下文。</p>
+
+<h3>0.1 一手理论</h3>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0;">
+  <div class="card" style="border-color:#58a6ff; background:linear-gradient(135deg, rgba(88,166,255,0.08), rgba(88,166,255,0.02));">
+    <div style="font-weight:bold;color:#58a6ff;margin-bottom:4px;">📖 Loop Engineering</div>
+    <div style="color:var(--dim);font-size:0.8em;margin-bottom:8px;">Addy Osmani · 2026-06-07</div>
+    <div style="color:var(--dim);font-size:0.85em;line-height:1.6;">
+      Loop Engineering 的原始定义和六原语。<br>
+      <strong>六原语：Automations · Worktrees · Skills · Connectors · Sub-agents · State/Memory</strong><br>
+      人从「写 prompt 的人」变成「设计系统的人」——人的角色从操作员升级为系统架构师。<br>
+      关键警告：<strong>comprehension debt（理解债）</strong>——loop 越快，你理解的和实际存在的之间的差距越大。<br>
+      <strong>cognitive surrender（认知投降）</strong>——loop 自己跑起来了，人最容易放弃思考。<br>
+      同一套 loop 两个人用出相反效果：一个加速自己深度理解的领域，一个逃避理解。
+    </div>
+    <div style="margin-top:8px;font-size:0.8em;"><a href="https://addyosmani.com/blog/loop-engineering/" target="_blank" style="color:var(--accent);">原文</a></div>
+  </div>
+  <div class="card" style="border-color:#e879a0; background:linear-gradient(135deg, rgba(232,121,160,0.08), rgba(232,121,160,0.02));">
+    <div style="font-weight:bold;color:#e879a0;margin-bottom:4px;">🎙 Boris Cherny · WorkOS Unplugged</div>
+    <div style="color:var(--dim);font-size:0.8em;margin-bottom:8px;">2026-06-02</div>
+    <div style="color:var(--dim);font-size:0.85em;line-height:1.6;">
+      「My job is to write loops」——他不再手动调 Claude，而是同时跑<strong>数百个并行 Claude 实例</strong>。<br>
+      核心策略：<strong>Underfund Principle</strong>——故意只给项目一半的人手，人不夠就会自动化。<br>
+      人的角色不是写 prompt，是<strong>塑造系统，系统塑造一切</strong>。<br>
+      人工检查「对错可判」的任务交给机器，人只留在需要判断力的节点。
+    </div>
+    <div style="margin-top:8px;font-size:0.8em;"><a href="https://podwise.ai/episodes/8139119" target="_blank" style="color:var(--accent);">Podwise 摘要</a> · <a href="https://www.productmarketfit.tech/p/stop-prompting-ai-and-start-building" target="_blank" style="color:var(--accent);">PMF 文章</a></div>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0;">
+  <div class="card" style="border-color:#a371f7; background:linear-gradient(135deg, rgba(163,113,247,0.08), rgba(163,113,247,0.02));">
+    <div style="font-weight:bold;color:#a371f7;margin-bottom:4px;">🐦 Peter Steinberger · Stop Prompting, Start Building Loops</div>
+    <div style="color:var(--dim);font-size:0.8em;margin-bottom:8px;">2026-06 · @steipete</div>
+    <div style="color:var(--dim);font-size:0.85em;line-height:1.6;">
+      「I have my claw supervising my codex'es」——一个 loop 管多个 agent。<br>
+      Supervisor → planner → coder → reviewer → tester 循环链路。<br>
+      <strong>Compound operations</strong>：prompt 给出单次输出，loop 给出<strong>复利操作</strong>——每次重复更便宜更快更好。<br>
+      反对声：Garry Tan 警告「别建富士康工厂让 agent 重复干同一件事」；Yuchen Jin 认为「loop 是临时补丁，等 LLM 判断力够了就不需要了」。
+    </div>
+    <div style="margin-top:8px;font-size:0.8em;"><a href="https://www.productmarketfit.tech/p/stop-prompting-ai-and-start-building" target="_blank" style="color:var(--accent);">PMF 文章</a> · <a href="https://digg.com/ai/7ifyvmb9" target="_blank" style="color:var(--accent);">Digg 讨论</a></div>
+  </div>
+  <div class="card" style="border-color:#d2991d; background:linear-gradient(135deg, rgba(210,153,29,0.08), rgba(210,153,29,0.02));">
+    <div style="font-weight:bold;color:#d2991d;margin-bottom:4px;">📐 OKF · Open Knowledge Format</div>
+    <div style="color:var(--dim);font-size:0.8em;margin-bottom:8px;">Google Cloud · v0.1</div>
+    <div style="color:var(--dim);font-size:0.85em;line-height:1.6;">
+      把知识表达为<strong>带 YAML frontmatter 的 Markdown 文件目录</strong>——对人和 Agent 同等友好。<br>
+      三个原则：<strong>最小约束</strong>（只强制 type 字段）、<strong>生产者/消费者独立</strong>、<strong>格式不是平台</strong>。<br>
+      核心理念：知识是<strong>版本控制的活 wiki</strong>——Agent 负责读写的苦力，人负责策展。<br>
+      「格式本身就是贡献」——不需要 SDK，不需要 runtime，不需要账号。
+    </div>
+    <div style="margin-top:8px;font-size:0.8em;"><a href="https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing" target="_blank" style="color:var(--accent);">Google Cloud Blog</a> · <a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf" target="_blank" style="color:var(--accent);">GitHub</a></div>
+  </div>
+</div>
+
+<h3>0.2 实战案例</h3>
+
+<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:16px 0;">
+  <div class="card" style="border-color:#3fb950;">
+    <div style="font-weight:bold;color:#3fb950;margin-bottom:4px;">🏢 KUN Studio · 4 Agent SaaS</div>
+    <div style="color:var(--dim);font-size:0.8em;margin-bottom:8px;">$15/月 VPS · 130 项/天 · 6 个月稳定</div>
+    <div style="color:var(--dim);font-size:0.85em;line-height:1.6;">
+      4 个 cron 定时 LLM 工作流：Content/SEO → Outreach → Revenue Ops → Retrospective。<br>
+      <strong>关键模式</strong>：Agent 不互相调用，通过 <code>./state/*.json</code> 共享数据。<br>
+      <strong>$5 审批线</strong>：超过 $5 的操作必须 Telegram 人工确认，零意外扣款。<br>
+      「Each executive must run unattended. The day you add an interactive prompt is the day automation dies.」
+    </div>
+    <div style="margin-top:8px;font-size:0.8em;"><a href="https://dev.to/kunstudio/how-i-built-an-ai-run-saas-with-4-llm-powered-executives-tutorial-c6f" target="_blank" style="color:var(--accent);">dev.to</a></div>
+  </div>
+  <div class="card" style="border-color:#58a6ff;">
+    <div style="font-weight:bold;color:#58a6ff;margin-bottom:4px;">✍️ Koka Sexton · 三层质检机</div>
+    <div style="color:var(--dim);font-size:0.8em;margin-bottom:8px;">16 项检查 · 4 属性 · 12 篇/周</div>
+    <div style="color:var(--dim);font-size:0.85em;line-height:1.6;">
+      <strong>Layer 1</strong>：写前护栏——结构化 Brief + 8 种 AI 腔检测。<br>
+      <strong>Layer 2</strong>：编辑管线——Revise→Edit→Proofread 串行三阶段，16 点 checklist。<br>
+      <strong>Layer 3</strong>：周度自动化扫查——编码完整性+链接有效性+AI 腔+设计元素。<br>
+      <strong>闭环</strong>：「清单只抓错，系统会学习」——每周扫到的错误反馈回 Layer 1/2。
+    </div>
+    <div style="margin-top:8px;font-size:0.8em;"><a href="https://kokasexton.com/3-layer-quality-machine-editorial-excellence/" target="_blank" style="color:var(--accent);">原文</a></div>
+  </div>
+  <div class="card" style="border-color:#d2991d;">
+    <div style="font-weight:bold;color:#d2991d;margin-bottom:4px;">🐍 wulixfr · 9 Agent Python</div>
+    <div style="color:var(--dim);font-size:0.8em;margin-bottom:8px;">~0€/月 · Windows schtasks · Gemini 免费层</div>
+    <div style="color:var(--dim);font-size:0.85em;line-height:1.6;">
+      所有 9 个 Agent 共享同一个 <code>BaseAgent</code> 五步骨架：load config → fetch data → process → act → log。<br>
+      <strong>SAMBA</strong> 写 SEO 博客、<strong>MARIAMA</strong> 发 LinkedIn、<strong>NDEYE</strong> 日报、<strong>KOUMAN</strong> 扫 Reddit 找商机。<br>
+      全免费层，Windows 本地运行，零服务器。关键：<strong>先写骨架再造 Agent，第一天就跑通最简单的那个</strong>。
+    </div>
+    <div style="margin-top:8px;font-size:0.8em;"><a href="https://dev.to/wulixfr/how-i-built-9-ai-automation-agents-in-python-to-run-my-business-247-2ij" target="_blank" style="color:var(--accent);">dev.to</a></div>
+  </div>
+</div>
+
+<h3>0.3 本地上下文</h3>
+
+<div class="ref-grid">
+  <div class="ref-card q">
+    <div class="ref-title">🏠 钟匠寓言</div>
+    <div class="ref-from">对话产出 · 2026-06-15</div>
+    <div class="ref-body">螺丝刀属于铺子，不属于布商。骨肉分离——基件挂墙共享，肌件在项目自治。铜牌掉了螺丝刀还是螺丝刀。头顶大钟只对时，不决定每口钟走不走。</div>
+  </div>
+  <div class="ref-card d">
+    <div class="ref-title">💀 宪法 · CLAUDE.md</div>
+    <div class="ref-from"><code>~/.claude/CLAUDE.md</code> · 持续更新</div>
+    <div class="ref-body">唯一真相源：数据在文件里，服务是代理不是主人。约定先行、设计先于施工。文件纪律：不复制跨项目知识。</div>
+  </div>
+  <div class="ref-card m">
+    <div class="ref-title">📐 Karpathy 验证循环</div>
+    <div class="ref-from">方法论引用</div>
+    <div class="ref-body">"Don't tell it what to do, give it success criteria and watch it go." 模糊目标驱动靠猜，强成功标准驱动自循环。</div>
+  </div>
+  <div class="ref-card d">
+    <div class="ref-title">🛠 agentboard 工具架</div>
+    <div class="ref-from"><code>~/.agentboard/</code> · 38 工具注册 · 运行中</div>
+    <div class="ref-body">server.js (3099)、cron/scheduler.js、xhs-scraper (:3095)、forma (:3100) 等。工具发现入口：GET /api/tools。</div>
+  </div>
+  <div class="ref-card q">
+    <div class="ref-title">📊 evopearl-data · 首个循环项目</div>
+    <div class="ref-from"><code>D:\workspace\evopearl-data\</code> · 3 链式 cron job</div>
+    <div class="ref-body">Gate 0-6 门禁架构、飞书通知、Vercel 部署。notebook/health.json 为唯一硬接口。</div>
+  </div>
+  <div class="ref-card m">
+    <div class="ref-title">📕 社媒数据抓取</div>
+    <div class="ref-from"><code>D:\workspace\2026-06-14-社媒数据抓取\</code> · :3095</div>
+    <div class="ref-body">小红书+微信统一采集平台。工具架上已有的抓取能力，应纳入 cron 数据采集链路。</div>
+  </div>
+  <div class="ref-card q">
+    <div class="ref-title">🔄 Loop Audit 技能</div>
+    <div class="ref-from"><code>~/.claude/skills/loop-audit/</code> · Phase 0→3</div>
+    <div class="ref-body">8 组件盘点、差距矩阵、落位指导。审计结束后写 LOOP_AUDIT.md + _runtime/audit-log.jsonl，框架自迭代。</div>
+  </div>
+  <div class="ref-card d">
+    <div class="ref-title">📋 文件管理原则</div>
+    <div class="ref-from">辉辉 · 桌面 <code>人写：文件管理原则.txt</code></div>
+    <div class="ref-body">备份先行、骨肉物理隔离、唯一真相源、Obsidian 独立。这是 workspace-keeper 的需求起点，不是架构文档。</div>
+  </div>
+</div>
+
+<!-- ==================== 1. 需求清单 ==================== -->
+<h2 id="req">1. 需求清单</h2>
+<p>循环工具体系要完成的事情，逐项可验证。</p>
+
+<ul class="checklist">
+  <li>闹钟 —— 按 crontab 定时触发 Claude Code 执行任务</li>
+  <li>巡检 —— 定期扫描项目目录，读取 health.json 汇总状态</li>
+  <li>提报 —— 异常通过飞书 / 邮件通知，正常不打搅</li>
+  <li>面板 —— 可视化查看所有项目的健康分和最新运行结果</li>
+  <li>审计 —— 检查任一项目是否符合循环化标准（Phase 0→1→2→3）</li>
+  <li>自愈 —— 基础异常自动修复（重启服务、清理临时文件等）</li>
+  <li>项目注册 —— 新项目一键接入循环体系，不需要写代码</li>
+  <li>独立运行 —— kill 掉工具架，每个项目仍能独立完成任务</li>
+  <li>通道扩展 —— 飞书 / 钉钉 / 企业微信等通知通道可插拔</li>
+  <li>日志追踪 —— 每次触发、执行、结果的完整链路可查</li>
+  <li>决策记录 —— 架构决策可追溯，不会因对话消失而丢失</li>
+  <li>文件夹标准化 —— 每个目录放什么有明确约定，新项目照抄即可</li>
+</ul>
+
+<!-- ==================== 2. 联邦制两种形态 ==================== -->
+<h2 id="cmp">2. 联邦制两种形态</h2>
+<p>集中式已排除。以下聚焦联邦制内部两种实现——Addy Osmani 五组件+记事本，分别归属工具架还是项目。</p>
+
+<h3>2.1 五组件归属拆解</h3>
+<p style="color:var(--dim);">每个组件分「定义」和「执行」两层。定义=规则写在哪，执行=谁实际跑。拆开才能判断。</p>
+
+<table>
+  <thead><tr><th>Addy 组件</th><th>本质</th><th>定义（规则写哪）</th><th>执行（谁跑）</th><th>安全敏感</th></tr></thead>
+  <tbody>
+    <tr><td>🔔 闹钟</td><td>定时触发</td><td class="best">项目 alarm/crontab.txt</td><td>agentboard scheduler.js</td><td>否</td></tr>
+    <tr><td>🏗 工位</td><td>Git worktree 隔离</td><td class="dim" colspan="2">Claude Code 原生能力。不属任何一方。</td><td>—</td></tr>
+    <tr><td>📖 员工手册</td><td>项目知识</td><td class="best">项目 CLAUDE.md + handbook/</td><td>Claude Code 读取</td><td>否</td></tr>
+    <tr><td>📞 电话线</td><td>外部工具连接</td><td>项目 wire/（用哪个通道）</td><td>agentboard MCP + token</td><td class="worst">是。token 不进项目</td></tr>
+    <tr><td>🔍 质检员</td><td>独立验证</td><td class="best">项目 inspector/checks.js</td><td>agentboard 调度另一模型</td><td>否</td></tr>
+    <tr><td>📝 记事本</td><td>跨会话状态</td><td class="best">项目 notebook/health.json</td><td>agentboard 聚合读取</td><td>否</td></tr>
+  </tbody>
+</table>
+
+<h3>2.2 两种联邦变体</h3>
+
+<div class="cmp">
+  <div class="cmp-col a">
+    <div class="label">变体 A · 厚工具架</div>
+    <p style="color:var(--dim);font-size:0.9em;">定义+执行都在 agentboard。项目只是被触发对象。</p>
+    <p style="margin-top:12px;"><strong>组件位置：</strong></p>
+    <ul style="color:var(--dim);padding-left:18px;font-size:0.9em;">
+      <li>闹钟定义 → agentboard cron/tasks.json</li>
+      <li>员工手册 → agentboard skills/</li>
+      <li>电话线 → agentboard 全管</li>
+      <li>质检规则 → agentboard rules/</li>
+      <li>记事本 → agentboard state/</li>
+    </ul>
+    <p style="margin-top:12px;"><strong>一句话：</strong>工具架是大脑，项目是手脚。</p>
+  </div>
+  <div class="cmp-col b">
+    <div class="label">变体 B · 薄工具架</div>
+    <p style="color:var(--dim);font-size:0.9em;">定义在项目，执行在工具架。工具架只做调度+聚合。</p>
+    <p style="margin-top:12px;"><strong>组件位置：</strong></p>
+    <ul style="color:var(--dim);padding-left:18px;font-size:0.9em;">
+      <li>闹钟定义 → 项目 alarm/crontab.txt</li>
+      <li>员工手册 → 项目 CLAUDE.md + handbook/</li>
+      <li>电话线 → token 在 agentboard，规则在项目 wire/</li>
+      <li>质检规则 → 项目 inspector/checks.js</li>
+      <li>记事本 → 项目 notebook/health.json</li>
+    </ul>
+    <p style="margin-top:12px;"><strong>一句话：</strong>工具架是代理，项目是主人。</p>
+  </div>
+</div>
+
+<h3>2.3 多维度对比</h3>
+
+<table>
+  <thead><tr><th>维度</th><th>变体 A · 厚工具架</th><th>变体 B · 薄工具架</th></tr></thead>
+  <tbody>
+    <tr><td>解耦</td><td class="worst">agentboard 熄了，定时任务+质检+通知全停</td><td class="best">agentboard 熄了，项目用 Windows 任务计划+原生 cron 继续跑。只丢 UI</td></tr>
+    <tr><td>安全</td><td class="best">token 集中在 agentboard ✅</td><td class="best">token 同样集中。项目 wire/ 只写「用飞书」，不含密钥 ✅</td></tr>
+    <tr><td>新项目接入</td><td class="worst">在 agentboard 手动加 3 处配置</td><td class="best">项目内建 2 个文件，agentboard 零改动自动发现</td></tr>
+    <tr><td>项目迁移</td><td class="worst">搬项目=agentboard 配置也要搬</td><td class="best">复制文件夹即迁移。新 agentboard 自动发现</td></tr>
+    <tr><td>调试</td><td class="worst">闹钟没触发？查 agentboard 日志</td><td class="best">先查项目 data/ 日志，再查 agentboard。责任链清晰</td></tr>
+    <tr><td>多项目差异化</td><td class="worst">不同质检规则=agentboard 里写 if-else</td><td class="best">每个项目自带 inspector/checks.js，互不干扰</td></tr>
+    <tr><td>工具架替换</td><td class="worst">换工具架=所有配置迁移</td><td class="best">换工具架=重新指向项目路径</td></tr>
+    <tr><td>版本控制</td><td class="worst">agentboard 配置进不进 git 都尴尬</td><td class="best">项目配置随项目进 git</td></tr>
+    <tr><td class="verdict">结论</td><td class="worst">初期快，但每加一个项目 agentboard 就胖一圈</td><td class="best">前期多写几个文件，项目越多优势越明显</td></tr>
+  </tbody>
+</table>
+
+<h3>2.4 Karpathy 验证：成功标准直接判</h3>
+
+<div class="principle">
+  <div class="p-title">四条硬标准，打钩说话</div>
+  <strong>1. kill 掉 agentboard，evopearl-data 能不能独立跑完今天的日报？</strong><br>
+  &nbsp;&nbsp;变体 A：✗（闹钟和记事本都在 agentboard，停了就没了）<br>
+  &nbsp;&nbsp;变体 B：✓（crontab.txt + health.json 在项目，Windows 任务计划可兜底）<br><br>
+  <strong>2. 把 evopearl-data 复制到新机器，能不能直接工作？</strong><br>
+  &nbsp;&nbsp;变体 A：✗（需手动重建 agentboard tasks/rules/state）<br>
+  &nbsp;&nbsp;变体 B：✓（项目自包含，agentboard 自动发现）<br><br>
+  <strong>3. 飞书 token 泄露风险哪个更大？</strong><br>
+  &nbsp;&nbsp;平手。两变体 token 都在 agentboard，不进项目仓库。<br><br>
+  <strong>4. 新加一个项目要改多少地方？</strong><br>
+  &nbsp;&nbsp;变体 A：agentboard 改 3 处（tasks.json + rules + state）<br>
+  &nbsp;&nbsp;变体 B：项目内新建 2 文件（CLAUDE.md + notebook/health.json），agentboard 零改动<br><br>
+  <strong>得分：A = 1/4，B = 4/4。变体 B 胜出。</strong>
+</div>
+
+<!-- ==================== 3. 文件夹架构 ==================== -->
+<h2 id="dir">3. 文件夹标准化</h2>
+
+<div class="legend">
+  <span><span class="dot bone"></span> 骨 — 基件，注册在工具架</span>
+  <span><span class="dot meat"></span> 肉 — 肌件，属于各个项目</span>
+  <span><span class="dot iface"></span> 紫 — 接口/协议</span>
+</div>
+
+<h3>3.1 agentboard（工具架）</h3>
+<div class="tree"><span class="dim">C:\Users\Administrator\.agentboard\</span>
+├── server.js              <span class="dim"># HTTP 服务 + API 路由</span>
+├── apps-registry.json     <span class="iface"># 工具注册表（指针）</span>
+├── loop-console.html      <span class="bone"># 循环控制台（骨）</span>
+├── loop-dashboard.html    <span class="bone"># 联邦健康面板（骨）</span>
+├── cron/
+│   ├── scheduler.js       <span class="bone"># 闹钟调度器（骨）</span>
+│   ├── runtime-logger.js  <span class="bone"># 运行日志（骨）</span>
+│   └── tasks.json         <span class="bone"># 调度任务注册</span>
+├── state/
+│   └── status.md          <span class="bone"># 工具架自身状态</span>
+├── tips/                  <span class="dim"># 踩坑笔记</span>
+├── tools/                 <span class="dim"># 各类技能/工具注册</span>
+└── _runtime/              <span class="dim"># 临时文件</span></div>
+
+<h3>3.2 loop-engine 项目（标准模板）</h3>
+<div class="tree"><span class="dim">D:\Claude code_workspace\2026-06-15-loop-engine\</span>
+├── CLAUDE.md              <span class="meat"># 项目规则（肌件）</span>
+├── ARCHITECTURE.html      <span class="dim"># 本文档</span>
+├── LOOP_AUDIT.md          <span class="iface"># 审计报告</span>
+│
+├── notebook/              <span class="iface"># ← 标准接口层</span>
+│   └── health.json        <span class="iface"># 健康数据（agentboard 读此文件）</span>
+│
+├── handbook/              <span class="meat"># 项目知识库（肌件）</span>
+│   ├── docs/              <span class="meat"># 文档</span>
+│   └── prompts/           <span class="meat"># 提示词</span>
+│
+├── alarm/                 <span class="meat"># 闹钟规则（肌件）</span>
+│   └── crontab.txt        <span class="meat"># 定时任务定义</span>
+│
+├── inspector/             <span class="meat"># 巡检逻辑（肌件）</span>
+│   └── checks.js          <span class="meat"># 检查项</span>
+│
+├── escalation/            <span class="meat"># 提报规则（肌件）</span>
+│   └── routes.json        <span class="meat"># 谁、什么情况、通过什么通道</span>
+│
+├── wire/                  <span class="meat"># 外部通道配置（肌件）</span>
+│   └── feishu.json        <span class="meat"># 飞书 webhook</span>
+│
+├── goals/                 <span class="meat"># 目标定义（肌件）</span>
+│   └── targets.json       <span class="meat"># 健康分目标 / SLA</span>
+│
+├── workstation/           <span class="meat"># 工作区（肌件）</span>
+│   └── 放项目专属脚本</span>
+│
+├── data/                  <span class="meat"># 持久化数据（肌件）</span>
+│   └── runtime-events.jsonl</span>
+│
+└── _runtime/              <span class="dim"># 临时文件（不进 git）</span></div>
+
+<h3>3.3 任意新项目的标准骨架</h3>
+<div class="tree"><span class="dim">项目根目录\</span>
+├── CLAUDE.md              <span class="meat"># 项目规则</span>
+└── notebook/              <span class="iface"># 标准接口（agentboard 读取此层）</span>
+    └── health.json        <span class="iface"># 必须：{ "status":"ok", "lastCheck":"...", "score":95 }</span></div>
+
+<p style="color:var(--dim);margin-top:8px;">一个项目只要有 <code>notebook/health.json</code>，agentboard 就能自动发现并展示在面板上。loop-audit 技能也读同一个文件。这是唯一的硬性接口约定。</p>
+
+<!-- ==================== 4. 组件关系图 ==================== -->
+<h2 id="rel">4. 组件关系</h2>
+
+<div class="arch">
+  <div class="arch-box agentboard">
+    <h4>🔧 agentboard（工具架）</h4>
+    <ul>
+      <li class="key">scheduler.js — 调度器</li>
+      <li class="key">server.js — API / 面板宿主</li>
+      <li class="key">loop-console.html — 控制台 UI</li>
+      <li class="key">loop-dashboard.html — 联邦面板</li>
+      <li>apps-registry.json — 工具清单</li>
+      <li>cron/runtime-logger.js</li>
+    </ul>
+    <p style="font-size:0.8em;margin-top:8px;color:var(--dim);">工具架可被完全替换。只影响 UI 和调度，不影响项目执行。</p>
+  </div>
+
+  <div class="arch-arrow">→<br>读取<br>←<br>通知</div>
+
+  <div class="arch-box project">
+    <h4>📁 项目 A（loop-engine）</h4>
+    <ul>
+      <li class="key">notebook/health.json</li>
+      <li class="key">alarm/crontab.txt</li>
+      <li class="key">escalation/routes.json</li>
+      <li>inspector/checks.js</li>
+      <li>wire/feishu.json</li>
+    </ul>
+    <p style="font-size:0.8em;margin-top:8px;color:var(--dim);">项目自带全量配置。可脱离工具架独立用 cron + Claude CLI 执行。</p>
+  </div>
+
+  <div class="arch-arrow">→<br>读取<br>←<br>通知</div>
+
+  <div class="arch-box project">
+    <h4>📁 项目 B（evopearl-data）</h4>
+    <ul>
+      <li class="key">notebook/health.json</li>
+      <li class="key">alarm/crontab.txt</li>
+      <li>CLAUDE.md</li>
+    </ul>
+    <p style="font-size:0.8em;margin-top:8px;color:var(--dim);">最少只需 2 个文件即可接入循环体系。</p>
+  </div>
+</div>
+
+<div class="principle">
+  <div class="p-title">核心约束</div>
+  agentboard API 上返回的任何数据，都必须能追溯到某个项目目录下的某个文件。<br>
+  agentboard 不创造数据，只转述。数据永远在自己屋里，墙上的只是影子。
+</div>
+
+<!-- ==================== 5. 最优方案 ==================== -->
+<h2 id="best">5. 最优方案：联邦制 · 薄工具架（变体 B）</h2>
+
+<div class="choice">
+  <h2>变体 B 胜出 <span class="tag">决策</span></h2>
+
+  <p><strong>一句话：</strong>定义留项目，执行归工具架。工具架是代理不是主人，真相永远在项目文件里。</p>
+
+  <p style="margin-top:12px;"><strong>关键设计决策（对标 Addy Osmani 五组件）：</strong></p>
+
+  <table>
+    <thead><tr><th>Addy 组件</th><th>决定</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>🔔 闹钟</td><td class="best">定义在项目 alarm/crontab.txt，执行在 agentboard scheduler</td><td>调度需要常驻进程；但规则属于项目，换机器也能跑</td></tr>
+      <tr><td>🏗 工位</td><td>Claude Code 原生 git worktree</td><td>不是我们的代码。Claude Code 本身提供隔离能力</td></tr>
+      <tr><td>📖 员工手册</td><td class="best">项目 CLAUDE.md + handbook/</td><td>项目知识属于项目。跨项目可复用 skills 在 agentboard</td></tr>
+      <tr><td>📞 电话线</td><td>token 在 agentboard，通道选择在项目 wire/</td><td>密钥不进项目仓库；项目决定用哪个通道</td></tr>
+      <tr><td>🔍 质检员</td><td class="best">项目 inspector/checks.js，agentboard 调度另一模型执行</td><td>不同项目不同质检标准。Koka Sexton 的三层质检就是项目级</td></tr>
+      <tr><td>📝 记事本</td><td class="best">项目 notebook/health.json + data/runtime-events.jsonl</td><td>"Agent forgets, the repo doesn't." 真相在磁盘，agentboard 只读</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ==================== 6. SOP: 新建一个循环项目 ==================== -->
+<h2 id="sop">6. SOP · 新项目接入循环体系</h2>
+
+<div class="sop-step">
+  <div class="sop-num">1</div>
+  <div class="sop-body">
+    <h4>创建项目骨架</h4>
+    <p>在项目根目录建 <code>CLAUDE.md</code> + <code>notebook/health.json</code>。最少两个文件即可。</p>
+  </div>
+</div>
+<div class="sop-step">
+  <div class="sop-num">2</div>
+  <div class="sop-body">
+    <h4>写 health.json</h4>
+    <p>按标准格式填写：<code>{"status":"ok","lastCheck":"2026-06-15T...","score":95,"tasks":[]}</code></p>
+  </div>
+</div>
+<div class="sop-step">
+  <div class="sop-num">3</div>
+  <div class="sop-body">
+    <h4>运行 loop-audit（可选但建议）</h4>
+    <p>在项目目录执行 loop-audit，检查是否满足循环化标准。Phase 0 门禁：文件存在 + 格式正确。</p>
+  </div>
+</div>
+<div class="sop-step">
+  <div class="sop-num">4</div>
+  <div class="sop-body">
+    <h4>agentboard 自动发现</h4>
+    <p>agentboard 启动时扫描项目目录，读到 health.json 自动展示在面板上。无需手动注册。</p>
+  </div>
+</div>
+<div class="sop-step">
+  <div class="sop-num">5</div>
+  <div class="sop-body">
+    <h4>（可选）加闹钟 / 巡检 / 提报</h4>
+    <p>按需在 <code>alarm/</code>、<code>inspector/</code>、<code>escalation/</code> 下放配置文件。不加也能跑，加了自动化更强。</p>
+  </div>
+</div>
+
+<!-- ==================== 7. 决策记录 ==================== -->
+<h2 id="log">7. 决策记录</h2>
+
+<table>
+  <thead><tr><th>#</th><th>决策</th><th>时间</th><th>理由摘要</th></tr></thead>
+  <tbody>
+    <tr><td>D-01</td><td>排除集中式，采用联邦制</td><td>2026-06-15</td><td>集中式 agentboard=单点故障；项目无法独立运行</td></tr>
+    <tr><td>D-02</td><td>联邦制内选择薄工具架（变体B）</td><td>2026-06-15</td><td>Karpathy 四标准 4/4 全胜。定义在项目，执行在工具架</td></tr>
+    <tr><td>D-03</td><td>对标 Addy Osmani 五组件：闹钟定义在项目，工位用 Claude Code 原生，员工手册在项目，电话线 token 在 agentboard，质检+记事本在项目</td><td>2026-06-15</td><td>安全（token不进项目）+ 解耦（项目自包含）+ 可替换（换工具架不改项目）</td></tr>
+    <tr><td>D-04</td><td>唯一硬接口：notebook/health.json</td><td>2026-06-15</td><td>任何工具都能通过标准接口读项目状态。这是'记事本'的落地</td></tr>
+    <tr><td>D-05</td><td>Loop Console 是独立应用，注册在工具架但不属于工具架</td><td>2026-06-15</td><td>铜牌掉了螺丝刀还是螺丝刀。换宿主改一行 URL</td></tr>
+    <tr><td>D-06</td><td>agentboard API 只做聚合，不造数据</td><td>2026-06-15</td><td>影子消失了，到光下还能看见原物。数据永远在自己屋里</td></tr>
+    <tr><td>D-07</td><td>参考来源锁定：Boris Cherny 演讲 + Addy Osmani 原文 + 卡兹克文章 + Koka Sexton 三层质检 + KUN Studio + wulixfr 九Agent</td><td>2026-06-15</td><td>所有设计决策都追溯到上游权威来源，不做空中楼阁</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 脚注 ==================== -->
+<div id="foot"></div>
+<p style="margin-top:48px;color:var(--dim);font-size:0.85em;">
+  <strong>钟匠寓言检验：</strong>每家的钟（项目）自己有发条有齿轮，不靠铺子墙上的大钟走时。
+  大钟（面板）只是让所有人一眼看清现在几点。铜牌（注册表）掉了，螺丝刀还是螺丝刀（Console 换个宿主照样跑）。
+  布商自己会上发条（项目自治）。<br><br>
+  <em>kill 掉 agentboard 进程，每个项目能不能独立跑完今天的任务？ —— 答案是「能」，架构就对了。</em>
+</p>
+
+<script>
+const navLinks = document.querySelectorAll('nav a');
+const sections = [...navLinks].map(a => document.querySelector(a.getAttribute('href')));
+window.addEventListener('scroll', () => {
+  let idx = sections.findIndex(s => s && s.getBoundingClientRect().top > 120);
+  if (idx === -1) idx = sections.length;
+  idx = Math.max(0, idx - 1);
+  navLinks.forEach(a => a.classList.remove('active'));
+  if (idx < navLinks.length) navLinks[idx].classList.add('active');
+});
+</script>
+</body>
+</html>
