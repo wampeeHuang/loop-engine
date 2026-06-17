@@ -218,6 +218,9 @@
       人从"写 prompt 的人"变成"设计系统的人"。<br>
       关键警告：comprehension debt（loop 越快，理解差距越大）；cognitive surrender（人放弃思考）。
     </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.75em;line-height:1.5;">
+      <span style="color:#58a6ff;">借鉴</span> 六原语骨架、comprehension debt / cognitive surrender 警告&emsp;<span style="color:#e879a0;">不借鉴</span> 6 原语全落地 → 只需 5 个（工位 = Claude Code 原生，Worktrees 多余）
+    </div>
     <div style="margin-top:8px;font-size:0.8em;"><a href="https://addyosmani.com/blog/loop-engineering/" target="_blank" style="color:var(--accent);">原文</a></div>
   </div>
   <div class="card" style="border-color:#e879a0; background:linear-gradient(135deg, rgba(232,121,160,0.08), rgba(232,121,160,0.02));">
@@ -227,6 +230,9 @@
       "My job is to write loops"——同时跑<strong>数百个并行 Claude 实例</strong>。<br>
       Underfund Principle：故意只给一半人手，人不夠就会自动化。<br>
       对错可判的任务交给机器，人只留在需要判断力的节点。
+    </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.75em;line-height:1.5;">
+      <span style="color:#58a6ff;">借鉴</span> Underfund Principle、对错可判交给机器&emsp;<span style="color:#e879a0;">不借鉴</span> 数百并行 Claude 实例 → 单机跑不起
     </div>
     <div style="margin-top:8px;font-size:0.8em;"><a href="https://podwise.ai/episodes/8139119" target="_blank" style="color:var(--accent);">Podwise</a> · <a href="https://www.productmarketfit.tech/p/stop-prompting-ai-and-start-building" target="_blank" style="color:var(--accent);">PMF</a></div>
   </div>
@@ -241,6 +247,9 @@
       Supervisor → planner → coder → reviewer → tester 循环链路。<br>
       Compound operations：prompt 单次输出，loop <strong>复利操作</strong>——每次重复更便宜更快更好。
     </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.75em;line-height:1.5;">
+      <span style="color:#58a6ff;">借鉴</span> Compound operations 复利概念、"一个 loop 管多个 agent"&emsp;<span style="color:#e879a0;">不借鉴</span> Supervisor→coder→reviewer 链式路由 → 单机过度工程，直调更简单
+    </div>
     <div style="margin-top:8px;font-size:0.8em;"><a href="https://www.productmarketfit.tech/p/stop-prompting-ai-and-start-building" target="_blank" style="color:var(--accent);">PMF</a> · <a href="https://digg.com/ai/7ifyvmb9" target="_blank" style="color:var(--accent);">Digg 讨论</a></div>
   </div>
   <div class="card" style="border-color:#d2991d; background:linear-gradient(135deg, rgba(210,153,29,0.08), rgba(210,153,29,0.02));">
@@ -250,6 +259,9 @@
       知识 = <strong>带 YAML frontmatter 的 Markdown 文件目录</strong>——对人机同等友好。<br>
       三原则：最小约束、生产者/消费者独立、<strong>格式不是平台</strong>。<br>
       不需要 SDK、不需要 runtime、不需要账号。Agent 读写苦力，人策展。
+    </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.75em;line-height:1.5;">
+      <span style="color:#58a6ff;">借鉴</span> YAML frontmatter Markdown、"格式不是平台"、最小约束&emsp;<span style="color:#e879a0;">不借鉴</span> Google Cloud 发布/托管流程 → 本地文件系统即可，不需知识库平台
     </div>
     <div style="margin-top:8px;font-size:0.8em;"><a href="https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing" target="_blank" style="color:var(--accent);">Google Cloud</a> · <a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf" target="_blank" style="color:var(--accent);">GitHub</a></div>
   </div>
@@ -266,6 +278,9 @@
       <strong>$5 审批线</strong>：超 $5 必须 Telegram 人工确认。<br>
       "The day you add an interactive prompt is the day automation dies."
     </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.75em;line-height:1.5;">
+      <span style="color:#58a6ff;">借鉴</span> $5 审批线、Agent 不互调、./state/*.json 共享状态&emsp;<span style="color:#e879a0;">不借鉴</span> $15/月 Linux VPS + cron → Windows 单机，调度/权限机制不同
+    </div>
     <div style="margin-top:8px;font-size:0.8em;"><a href="https://dev.to/kunstudio/how-i-built-an-ai-run-saas-with-4-llm-powered-executives-tutorial-c6f" target="_blank" style="color:var(--accent);">dev.to</a></div>
   </div>
   <div class="card" style="border-color:#58a6ff;">
@@ -274,6 +289,9 @@
     <div style="color:var(--dim);font-size:0.85em;line-height:1.6;">
       L1 写前护栏（8 种 AI 腔检测）→ L2 编辑管线（Revise→Edit→Proofread）→ L3 周度扫查。<br>
       <strong>闭环</strong>：每周扫到的错误反馈回 L1/L2，系统持续学习。
+    </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.75em;line-height:1.5;">
+      <span style="color:#58a6ff;">借鉴</span> L1→L2→L3 分层质检、闭环反馈到护栏&emsp;<span style="color:#e879a0;">不借鉴</span> 纯文章质检维度 → 我们还要质检代码/数据/调度/配置，对象维度更多
     </div>
     <div style="margin-top:8px;font-size:0.8em;"><a href="https://kokasexton.com/3-layer-quality-machine-editorial-excellence/" target="_blank" style="color:var(--accent);">原文</a></div>
   </div>
@@ -284,6 +302,9 @@
       <code>BaseAgent</code> 五步骨架：load config → fetch → process → act → log。<br>
       关键教训：<strong>先写骨架再造 Agent，第一天就跑通最简单那个</strong>。<br>
       全免费层，Windows 本地，零服务器。
+    </div>
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);font-size:0.75em;line-height:1.5;">
+      <span style="color:#58a6ff;">借鉴</span> BaseAgent 五步骨架、先跑通最简单的、Windows 原生&emsp;<span style="color:#e879a0;">不借鉴</span> Gemini 免费层 → DeepSeek / aigoapi，模型策略不同；Python → Claude Code + Node.js
     </div>
     <div style="margin-top:8px;font-size:0.8em;"><a href="https://dev.to/wulixfr/how-i-built-9-ai-automation-agents-in-python-to-run-my-business-247-2ij" target="_blank" style="color:var(--accent);">dev.to</a></div>
   </div>
@@ -461,6 +482,22 @@
   </tbody>
 </table>
 
+<h3>1.5 承重墙清单</h3>
+<p style="color:var(--dim);">这些不能动。改造方案可以在墙上粉刷、走线、开孔——但不能拆墙。开工前声明，施工中检查。</p>
+
+<table>
+  <thead><tr><th>#</th><th>承重墙</th><th>为什么不能动</th><th>如果非要动</th></tr></thead>
+  <tbody>
+    <tr><td>W1</td><td><strong>宪法红线</strong> · <code>~/.claude/CLAUDE.md</code></td><td>行为规则的唯一真相源。红线清单（删除/密钥/git push/全局安装/公开发布）锚定所有 agent 行为</td><td>先改宪法，再改代码。不先斩后奏</td></tr>
+    <tr><td>W2</td><td><strong>agentboard :3099</strong> API 合约</td><td>38 工具注册 + cron 调度 + 健康面板依赖此接口。断 = 全停</td><td>新版 API 兼容旧版跑 7 天，验证后再下线旧版</td></tr>
+    <tr><td>W3</td><td><strong>notebook/health.json</strong> schema</td><td>agentboard 自动发现项目的唯一硬接口。字段名/类型 = 合约</td><td>加字段可以，改已有字段 = 破坏性变更</td></tr>
+    <tr><td>W4</td><td><strong>~/.openclaw/cron/jobs.json</strong> 格式</td><td>OpenClaw gateway 调度源。改格式 = 所有 cron 停摆</td><td>test job 先验，gateway 正常再全量切</td></tr>
+    <tr><td>W5</td><td><strong>D:\workspace\</strong> 根路径约定</td><td>所有项目、agentboard 扫描、备份脚本依赖此根</td><td>搬目录 = 全局路径重写，需全量回归</td></tr>
+  </tbody>
+</table>
+
+<p style="margin-top:8px;"><strong>→ 所以：</strong>5 堵承重墙。所有设计决策不得穿透。如果 P0 改动触及承重墙——停，先讨论。</p>
+
 <!-- ==================== 2. 设计目标 ==================== -->
 <h2 id="goal">2. 设计目标</h2>
 
@@ -483,6 +520,37 @@
     <tr><td>G8</td><td>踩过的坑不踩第二遍</td><td class="good">agent_notes 写入工具 manifest，后续 AI 调前先读</td></tr>
   </tbody>
 </table>
+
+<h3>2.1b 设计原则</h3>
+<p style="color:var(--dim);">从痛点、约束和参考案例中提炼。不是装饰——每条原则对应一个具体的失败模式。</p>
+
+<div class="ref-grid">
+  <div class="ref-card d">
+    <div class="ref-title">骨肉物理隔离</div>
+    <div class="ref-from">文件管理原则 · 痛点#9</div>
+    <div class="ref-body">骨件（工具架/宪法/skills）在 C 盘，肉件（项目/数据）在 D 盘。不混放，不跨盘依赖。复制文件夹 = 完整迁移。</div>
+  </div>
+  <div class="ref-card q">
+    <div class="ref-title">失败必须可见</div>
+    <div class="ref-from">痛点#5 · 6/17 无声失败</div>
+    <div class="ref-body">静默失败 > 报错。任何 cron 执行不论成败都有日志；成功判定 = 产出文件存在，不是进程退出码 0。</div>
+  </div>
+  <div class="ref-card d">
+    <div class="ref-title">唯一真相源</div>
+    <div class="ref-from">宪法 · 痛点#3</div>
+    <div class="ref-body">每条数据只有一个家。evopearl-data 两处有源 = 不知道信谁。真相在文件里，不在服务里。服务是代理，不是主人。</div>
+  </div>
+  <div class="ref-card m">
+    <div class="ref-title">薄工具架</div>
+    <div class="ref-from">Loop Engineering · Karpathy 四标准</div>
+    <div class="ref-body">定义在项目，执行在 agentboard。agentboard 只调度+聚合，不替项目做决策。熄了项目照跑。</div>
+  </div>
+  <div class="ref-card q">
+    <div class="ref-title">一次只改一个首要方向</div>
+    <div class="ref-from">旧改方法论 · Phase 2 门禁</div>
+    <div class="ref-body">8 条成功标准平铺 = 没有优先级。这次改造优先攻"失败可见"，其他是锦上添花。下次改造可以换方向。</div>
+  </div>
+</div>
 
 <h3>2.2 非目标（明确不做）</h3>
 
@@ -638,6 +706,10 @@
 │   ├── runner.js          <span class="bone"># 任务执行器</span>
 │   ├── runtime-logger.js  <span class="bone"># 运行日志写入</span>
 │   └── scheduler-state.json <span class="bone"># 调度器运行时状态</span>
+│
+│   <span class="dim" style="font-size:0.75em;">💡 运行时 = 执行时产生的临时状态，不是定义。</span>
+│   <span class="dim" style="font-size:0.75em;">定义（CLAUDE.md、loop-tasks.json）= 应该是什么，归 git 管。</span>
+│   <span class="dim" style="font-size:0.75em;">运行时（scheduler-state.json、_runtime/、会话日志）= 正在发生什么，不进 git，丢了不影响系统重建。</span>
 ├── tools/                 <span class="dim"># 各工具注册目录</span>
 ├── tips/                  <span class="dim"># 操作日志</span>
 ├── state/                 <span class="bone"># 工具架自身状态</span>
@@ -760,10 +832,46 @@
   </tbody>
 </table>
 
+<h4>按计费类型展开风险</h4>
+
+<table>
+  <thead><tr><th>API 类型</th><th>计费单位</th><th>单次成本</th><th>loop 场景风险</th><th>防护策略</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>生图</strong></td>
+      <td>按张</td>
+      <td>¥0.1–0.5/张</td>
+      <td>loop 自动跑可能批量生成数百张；prompt 迭代实验夜间失控</td>
+      <td>每日上限 20 张 + 单次审批线 ¥3（约 6–30 张）</td>
+    </tr>
+    <tr>
+      <td><strong>语音合成</strong></td>
+      <td>按秒</td>
+      <td>¥0.002–0.01/秒</td>
+      <td>长文本合成按分钟计；loop 重试循环叠加</td>
+      <td>单次上限 300 秒 + 重试上限 3 次</td>
+    </tr>
+    <tr>
+      <td><strong>文本/翻译</strong></td>
+      <td>按 token</td>
+      <td>¥0.001–0.01/1K tokens</td>
+      <td>大文本输入输出爆炸；上下文膨胀导致重复处理的 token 线性增长</td>
+      <td>单次上限 50K tokens + 每日上限 500K tokens</td>
+    </tr>
+    <tr>
+      <td><strong>第三方数据</strong></td>
+      <td>按次/月费</td>
+      <td>¥0.01–0.1/次 或固定月费</td>
+      <td>API 密钥过期后 loop 静默失败（6/17 教训）；rate limit 触发后重试风暴</td>
+      <td>调用前检查密钥有效性 + 失败不重试（间隔 ≥ 1h）</td>
+    </tr>
+  </tbody>
+</table>
+
 <div class="principle warn">
   <div class="p-title">待决策</div>
   审批线是硬阻断还是软提醒？硬阻断 = loop 停下来等人工；软提醒 = 通知但继续。KUN Studio 用硬阻断（Telegram 确认）。<br>
-  生图 API 的计费单位（张）和文本 API（token）不同，$5 阈值怎么折算？
+  生图/语音/文本三种计费单位不同，统一按"当日累计 ¥5"还是"单次 ¥5"？前者累积可控但单次可能爆，后者单次安全但每日总额不控。
 </div>
 
 <h3>4.5 备份体系</h3>
@@ -791,6 +899,31 @@
   git 的 diff 历史有价值，但 ~/.agentboard 含运行时状态（scheduler-state.json、_runtime/），不能全进仓库。
 </div>
 
+<h4>恢复 SOP（让不懂系统的人也能照着恢复）</h4>
+
+<div class="card">
+  <div class="principle">
+    <div class="p-title">场景 A：骨件丢失（~/.agentboard 或 ~/.claude 损坏）</div>
+    1. 打开 F:\_backups\bone\，确认最新备份日期（看文件夹修改时间）<br>
+    2. 复制全部内容：<code>robocopy F:\_backups\bone\ C:\Users\Administrator\ /E /COPYALL</code><br>
+    3. 验证：打开 agentboard <code>curl localhost:3099/api/tools | jq ".tools | length"</code>——应返回 ≥8 个工具<br>
+    4. 如 agentboard 不响应，运行 <code>pm2 restart agentboard</code> 或重启计算机
+  </div>
+  <div class="principle" style="margin-top:12px;">
+    <div class="p-title">场景 B：workspace 项目丢失（D:\workspace\ 误删）</div>
+    1. 从 GitHub clone：<code>git clone git@github.com:evopearl/loop-engine.git D:\workspace\2026-06-15-loop-engine</code><br>
+    2. 检查是否有未提交的 _runtime/ 数据需要从 F 盘恢复（F:\_backups\workspace_runtime\）<br>
+    3. 验证：<code>dir D:\workspace\2026-06-15-loop-engine\notebook\health.json</code>——文件存在即恢复成功
+  </div>
+  <div class="principle" style="margin-top:12px;">
+    <div class="p-title">场景 C：ARCHITECTURE.html 被错误覆盖（本日教训）</div>
+    1. <code>git reflog</code> 找到覆盖前的 commit hash<br>
+    2. <code>git checkout &lt;hash&gt; -- ARCHITECTURE.html</code> 恢复旧版本<br>
+    3. 如果 git 历史也没有：<code>git log --all --full-history -- ARCHITECTURE.html</code> 搜索所有分支<br>
+    4. 最后手段：F 盘 robocopy 备份中的旧版本（每日快照）
+  </div>
+</div>
+
 <!-- ==================== 5. 分阶段施工 ==================== -->
 <h2 id="build">5. 分阶段施工</h2>
 
@@ -808,6 +941,10 @@
       ⬜ cron job 成功判定改为"产出文件存在"而非仅"进程退出码 0"<br>
       ⬜ D:\workspace\CLAUDE.md 写入 workspace 级文件管理规范
     </p>
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:0.82em;">
+      <span style="color:#3fb950;">验证</span> scheduler 日志可见（stderr → 文件）；Loop Engine 有 git log；cron 故障判定为"产出文件存在"而非退出码<br>
+      <span style="color:#f85149;">回滚</span> 每项改动前备份旧文件（cp → .bak）；改坏则 cp .bak 回原位；scheduler.js 用 git revert 回退
+    </div>
   </div>
 </div>
 
@@ -822,6 +959,10 @@
       ⬜ agent_notes 协议落地：AI 每次调工具前读 conflicts + notes<br>
       ⬜ HANDOFF.md 模板 + 技能
     </p>
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:0.82em;">
+      <span style="color:#3fb950;">验证</span> F 盘备份文件数 ≥ C 盘源文件数；workspace-keeper 巡检跑通返回 4 项结果；agentboard 工具列表含 agent_notes<br>
+      <span style="color:#f85149;">回滚</span> robocopy 备份有 /MIR 镜像，可直接反向 robocopy 恢复；~/.agentboard git 用 git reset 回退误提交
+    </div>
   </div>
 </div>
 
@@ -836,6 +977,10 @@
       ⬜ D 盘旧项目清理/迁移（D:\HHH\自媒体\ → workspace/lab/ 或保留决策）<br>
       ⬜ agentboard 自动发现：扫描 D:\workspace\ 下所有 notebook/health.json
     </p>
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:0.82em;">
+      <span style="color:#3fb950;">验证</span> 新项目 loop init → loop-audit 得分 ≥ 70；微信采集 cron 产出文件存在且 tokens > 0；agentboard 面板显示 ≥ 2 个项目<br>
+      <span style="color:#f85149;">回滚</span> 项目模板生成器生成的目录直接删除即可；D 盘旧项目迁移先在原路径备份再搬
+    </div>
   </div>
 </div>
 
@@ -850,8 +995,28 @@
       ⬜ 外部 API 审批流（§4.4 计费审批线落地）<br>
       ⬜ 异地备份验证（F 盘 + 百度云盘定期恢复测试）
     </p>
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:0.82em;">
+      <span style="color:#3fb950;">验证</span> 自愈脚本跑通至少 1 个真实故障场景；联邦面板 5 秒内加载所有项目；审批流成功阻断 1 次超额调用<br>
+      <span style="color:#f85149;">回滚</span> 自愈脚本有 dry-run 模式；面板是只读视图，不影响数据源；审批规则改回 rules.json 旧版即可
+    </div>
   </div>
 </div>
+
+<h3>5.1 Before/After 指标</h3>
+
+<table>
+  <thead><tr><th>指标</th><th>改造前（2026-06-17）</th><th>改造后目标</th><th>Phase</th></tr></thead>
+  <tbody>
+    <tr><td>cron 故障可观测</td><td class="worst">0%（6/17 无声失败无日志）</td><td class="best">100% 故障有 stderr 日志</td><td>0</td></tr>
+    <tr><td>tokens 提取准确性</td><td class="worst">硬编码 0（scheduler.js）</td><td class="best">每次从 LLM 响应实际提取</td><td>0</td></tr>
+    <tr><td>健康评分</td><td class="worst">无评分机制</td><td class="best">所有接入项目 ≥ 70 分</td><td>1</td></tr>
+    <tr><td>骨件备份时效</td><td class="worst">无自动备份</td><td class="best">每日自动 robocopy，滞后 ≤ 25h</td><td>1</td></tr>
+    <tr><td>loop 接入时间</td><td class="worst">手动创建所有文件（≥30min）</td><td class="best">loop init 一键生成（≤ 2min）</td><td>2</td></tr>
+    <tr><td>D 盘项目整洁度</td><td class="worst">散落 D:\HHH\自媒体\ + workspace</td><td class="best">全部在 D:\workspace\ 下</td><td>2</td></tr>
+    <tr><td>自愈覆盖率</td><td class="worst">0 种故障自动恢复</td><td class="best">≥ 3 种故障自动恢复</td><td>3</td></tr>
+    <tr><td>跨项目健康可视</td><td class="worst">无面板，手动查各项目</td><td class="best">联邦面板 5s 加载全部</td><td>3</td></tr>
+  </tbody>
+</table>
 
 <!-- ==================== 6. 决策记录 ==================== -->
 <h2 id="log">6. 决策记录</h2>
