@@ -10,7 +10,7 @@
     --card: #161b22;
     --border: #30363d;
     --text: #c9d1d9;
-    --dim: #8b949e;
+    --dim: #bcc5d0;
     --accent: #58a6ff;
     --green: #3fb950;
     --orange: #d2991d;
@@ -208,33 +208,37 @@
 <p>理解 Loop Engineering 的上下文。三层：理论基石 → 实战验证 → 本地约束。</p>
 
 <h3>0.1 理论基石</h3>
-<p style="color:var(--dim);margin-bottom:16px;">四位定义了 Loop Engineering 的理论框架。每位的贡献不同，批评也不同。调研方法：读原文 → 搜社区反馈（知乎/HN/Reddit）→ 提取对我们的意义。</p>
+<p style="color:#e6edf3;margin-bottom:16px;">四位定义了 Loop Engineering 的理论框架。每位的贡献不同，批评也不同。调研方法：读原文 → 搜社区反馈（知乎/HN/Reddit）→ 提取对我们的意义。</p>
 
 <!-- Loop Engineering -->
 <div class="card" style="border-color:#58a6ff;margin-bottom:24px;">
   <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
     <div style="flex:1;min-width:280px;">
       <div style="font-weight:bold;font-size:1.1em;color:#58a6ff;margin-bottom:2px;">Loop Engineering</div>
-      <div style="color:var(--dim);font-size:0.8em;margin-bottom:12px;">Addy Osmani · 2026-06-07 · <a href="https://addyosmani.com/blog/loop-engineering/" target="_blank" style="color:var(--accent);">原文</a></div>
+      <div style="color:#e6edf3;font-size:0.8em;margin-bottom:12px;">Addy Osmani · 2026-06-07 · <a href="https://addyosmani.com/blog/loop-engineering/" target="_blank" style="color:var(--accent);">原文</a></div>
       <p style="line-height:1.7;margin-bottom:12px;">
         <strong>核心论点：</strong>人从"写 prompt 的人"变成"设计系统的人"。Loop = Automations + Worktrees + Skills + Connectors + Sub-agents + State/Memory。关键是<strong>设计反馈环</strong>，不是写一次性指令。
       </p>
       <p style="line-height:1.7;margin-bottom:12px;">
         <strong>两个关键警告：</strong><br>
-        <span style="color:#f85149;">comprehension debt</span>——loop 跑得越快，人对代码的理解差距越大。"如果代码库 30% 从未被仔细审阅过，loop 会让这个数字线性增长。"<br>
-        <span style="color:#f85149;">cognitive surrender</span>——人放弃思考，loop 输出什么就接受什么。"两个开发者建同样的 loop 可能得到相反结果——一个加速理解，一个逃避理解。"
+        <span style="color:#f85149;">comprehension debt（认知负债）</span>——loop 跑得越快，人对代码的理解差距越大。"如果代码库 30% 从未被仔细审阅过，loop 会让这个数字线性增长。"<br>
+        <span style="color:#f85149;">cognitive surrender（认知投降）</span>——人放弃思考，loop 输出什么就接受啦。"两个开发者建同样的 loop 可能得到相反结果——一个加速理解，一个逃避理解。"
       </p>
+      <div style="margin-top:12px;padding:14px;background:rgba(163,113,247,0.06);border-radius:6px;border:1px solid rgba(163,113,247,0.2);font-size:0.85em;line-height:1.7;">
+        <strong style="color:#a371f7;">费曼式解读</strong><br>
+        你雇了一个实习生帮你写代码，每次你交代完就不管了，过一会儿回来看结果。但你发现他可能写歪了、写错了，或者偷偷把你的意思改了——你自己也越来越不理解自己的代码了。Loop Engineering 就是给这个实习生装一套"工作流程"：几点开工、查哪些资料、写完怎么自查、做完通知谁。你从"盯一个人干活"变成"设计一条流水线"。关键警告：如果流水线跑太快，你连产品都不认识了——这就是 comprehension debt。更可怕的是，你开始什么都信流水线的——这就是 cognitive surrender。
+      </div>
     </div>
     <div style="flex:0 0 280px;">
       <img src="screenshots/loop-engineering.png" style="width:100%;border-radius:6px;border:1px solid var(--border);" loading="lazy" alt="Loop Engineering 六原语架构">
-      <div style="font-size:0.7em;color:var(--dim);margin-top:4px;text-align:center;">六原语 + Memory 的反馈环模型</div>
+      <div style="font-size:0.7em;color:#e6edf3;margin-top:4px;text-align:center;">六原语 + Memory 的反馈环模型</div>
     </div>
   </div>
   <details style="margin-top:12px;">
     <summary style="color:var(--accent);cursor:pointer;font-size:0.9em;">社区批评</summary>
-    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:var(--dim);">
+    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:#e6edf3;">
       <p><strong>"旧酒新瓶"</strong>——Automations=cron(1975)、Worktrees=git worktree(2015)、Maker-Checker=四眼原则(几十年前)。知乎高赞："AI 圈子请停止每天发明新术语。Prompt Engineering→Context Engineering→Harness Engineering→Loop Engineering，两年四个'范式'。多少旧酒能装多少新瓶？"</p>
-      <p><strong>Token 成本爆炸</strong>——loop 模式消耗 3-8× token。有人评论："token 富人用 while 循环，token 穷人用 for 循环。"普通 $20/月用户根本跑不起。</p>
+      <p><strong>Token(令牌) 成本爆炸</strong>——loop 模式消耗 3-8× token。有人评论："token(令牌) 富人用 while 循环，token(令牌) 穷人用 for 循环。"普通 $20/月用户根本跑不起。</p>
       <p><strong>调试噩梦</strong>——47 轮 loop 失败后怎么定位？没有成熟的 loop 可观测性方案。"'完成了'仍然是一句声称，不是证据。"</p>
     </div>
   </details>
@@ -250,29 +254,33 @@
   <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
     <div style="flex:1;min-width:280px;">
       <div style="font-weight:bold;font-size:1.1em;color:#e879a0;margin-bottom:2px;">Boris Cherny · WorkOS Unplugged</div>
-      <div style="color:var(--dim);font-size:0.8em;margin-bottom:12px;">2026-06-02 · Claude Code 作者 · <a href="https://www.productmarketfit.tech/p/stop-prompting-ai-and-start-building" target="_blank" style="color:var(--accent);">PMF 报道</a> · <a href="https://podwise.ai/episodes/8139119" target="_blank" style="color:var(--accent);">Podwise</a></div>
+      <div style="color:#e6edf3;font-size:0.8em;margin-bottom:12px;">2026-06-02 · Claude Code 作者 · <a href="https://www.productmarketfit.tech/p/stop-prompting-ai-and-start-building" target="_blank" style="color:var(--accent);">PMF 报道</a> · <a href="https://podwise.ai/episodes/8139119" target="_blank" style="color:var(--accent);">Podwise</a></div>
       <p style="line-height:1.7;margin-bottom:12px;">
-        <strong>核心论点：</strong>"我不再直接 prompt Claude 了。我写 loop，让 loop 去 prompt Claude。我的工作是写 loop。"——同时跑<strong>数百个并行 Claude 实例</strong>，读 GitHub issues、扫 Twitter 反馈、爬 Slack，自动发现下一步要构建什么。Claude Code 现在 100% 由 Claude Code 自己写。目前 4% 的 GitHub 公开提交来自 Claude Code，2026 年底预计超 20%。
+        <strong>核心论点：</strong>"我不再直接 prompt Claude 了。我写 loop，让 loop 去 prompt Claude。我的工作是写 loop。"——同时跑<strong>数百个并行(同时运行) Claude 实例</strong>，读 GitHub issues、扫 Twitter(推特) 反馈、爬 Slack(办公通讯)，自动发现下一步要构建什么。Claude Code 现在 100% 由 Claude Code 自己写。目前 4% 的 GitHub 公开提交来自 Claude Code，2026 年底预计超 20%。
       </p>
       <p style="line-height:1.7;margin-bottom:12px;">
-        <strong>Underfund Principle：</strong>故意只给项目一半人手——人不够就会被迫自动化。"对错可判的任务交给机器，人只留在需要判断力的节点。"
+        <strong>Underfund Principle（缺钱原则）：</strong>故意只给项目一半人手——人不够就会被迫自动化。"对错可判的任务（可验证对错的任务）交给机器，人只留在需要判断力（主观判断）的节点。"
       </p>
+      <div style="margin-top:12px;padding:14px;background:rgba(163,113,247,0.06);border-radius:6px;border:1px solid rgba(163,113,247,0.2);font-size:0.85em;line-height:1.7;">
+        <strong style="color:#a371f7;">费曼式解读</strong><br>
+        你手下有个工程师团队，活儿多到做不完。与其再加 10 个人，不如只给 2 个——逼他们写自动化脚本。判断对错的事情（测试过了没有、代码格式对不对）交给脚本去判，人盯着需要审美和判断力的事。Cherny 更极端：他连 IDE（代码编辑器）都卸载了，只写"环"（循环流程）——让环去决定什么时候跑 Claude、跑什么、跑完怎么判。数百个 Claude 同时跑，他不看每一个输出——环替他看。换个你可以想象的比喻：工厂质检员不自己检测产品，他设计检测机器，机器来测，他只抽检异常品。
+      </div>
     </div>
     <div style="flex:0 0 280px;">
       <img src="screenshots/boris-cherny-pragmatic.png" style="width:100%;border-radius:6px;border:1px solid var(--border);" loading="lazy" alt="Boris Cherny 的 Loop Engineering 实战">
-      <div style="font-size:0.7em;color:var(--dim);margin-top:4px;text-align:center;">Boris 的 loop 不再需要直接 prompt</div>
+      <div style="font-size:0.7em;color:#e6edf3;margin-top:4px;text-align:center;">Boris 的 loop 不再需要直接 prompt</div>
     </div>
   </div>
   <details style="margin-top:12px;">
     <summary style="color:var(--accent);cursor:pointer;font-size:0.9em;">社区反馈</summary>
-    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:var(--dim);">
+    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:#e6edf3;">
       <p>X 上 70 万次观看。两极分化：一部分人兴奋"这是 AI 编程的未来"，另一部分批评"97% 的人没有数百个并行实例的预算"。Reddit 讨论聚焦：<strong>Underfund Principle 在生产环境是否安全？</strong>"如果两个工程师的代码没人 review，loop 放大的是质量还是 bug？"</p>
       <p>社区普遍认同一个点：<strong>对错可判的任务才适合自动化</strong>。类型检查、测试通过、lint 零错误——这些机器能判。但"这个设计好用吗"、"这个文案读起来对吗"——仍然需要人。</p>
     </div>
   </details>
   <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:0.85em;line-height:1.7;">
     <span style="color:#58a6ff;font-weight:bold;">借鉴</span> Underfund Principle——用约束驱动自动化而非堆人。对错可判交机器——我们的 inspector 质检组件直接继承这个思路。4%→20% 的 GitHub 趋势说明这不是小众实验。<br>
-    <span style="color:#e879a0;font-weight:bold;">不借鉴</span> 数百并行实例——单机跑不起，token 账单受不了。Boris 在 Anthropic 内部有无限额度，我们按 token 付费。
+    <span style="color:#e879a0;font-weight:bold;">不借鉴</span> 数百并行实例——单机跑不起，token 账单受不了。Boris 在 Anthropic 内部有无限额度，我们按 token(令牌) 付费。
   </div>
   <div style="margin-top:4px;font-size:0.75em;"><strong>术语：</strong><em>Underfund Principle</em> = 故意少给人手，用资源约束倒逼自动化——"四工程师项目给两个，剩下两个靠 loop"。<em>对错可判</em> = 有明确可验证正确/错误标准的任务（测试通过/失败、类型匹配/不匹配），区别于需要主观判断的任务。</div>
 </div>
@@ -282,22 +290,26 @@
   <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
     <div style="flex:1;min-width:280px;">
       <div style="font-weight:bold;font-size:1.1em;color:#a371f7;margin-bottom:2px;">Peter Steinberger · Compound Operations</div>
-      <div style="color:var(--dim);font-size:0.8em;margin-bottom:12px;">2026-06 · OpenClaw 作者 · @steipete · <a href="https://digg.com/tech/wps0fl4e" target="_blank" style="color:var(--accent);">Digg 讨论</a></div>
+      <div style="color:#e6edf3;font-size:0.8em;margin-bottom:12px;">2026-06 · OpenClaw 作者 · @steipete · <a href="https://digg.com/tech/wps0fl4e" target="_blank" style="color:var(--accent);">Digg 讨论</a></div>
       <p style="line-height:1.7;margin-bottom:12px;">
         <strong>核心论点：</strong>"你不应该再给 coding agent 写 prompt 了。你应该设计 loop，让 loop 去 prompt 你的 agent。"X 上 150 万+ 次观看。他维护了<strong>一个每 5 分钟唤醒的 loop</strong>，把维护任务队列交给 OpenAI Codex，通过自定义 skills 路由工作——部分全自动落地，高风险改动浮到人工 review。
       </p>
       <p style="line-height:1.7;margin-bottom:12px;">
-        <strong>Compound operations：</strong>prompt 是单次操作，loop 是<strong>复利操作</strong>——每次重复更便宜、更快、更好。一个 loop 管多个 agent，不是一对一。"I have my claw supervising my codex'es."
+        <strong>Compound operations（复利操作）：</strong>prompt（提示词）是单次操作，loop（循环）是<strong>复利操作</strong>——每次重复更便宜、更快、更好。一个 loop 管多个 agent（智能体），不是一对一。"I have my claw supervising my codex'es."
       </p>
+      <div style="margin-top:12px;padding:14px;background:rgba(163,113,247,0.06);border-radius:6px;border:1px solid rgba(163,113,247,0.2);font-size:0.85em;line-height:1.7;">
+        <strong style="color:#a371f7;">费曼式解读</strong><br>
+        你开了 5 家连锁店，不会一家家亲自巡店——你雇了一个巡店经理，每 5 分钟打电话给每家店问情况。经理有本操作手册（skills）：进货怎么验、陈列怎么摆、投诉怎么处理。日常问题经理直接处理，只有高风险决策（比如退一大笔钱）才打电话问你。关键是：每次巡店都是在上次基础上做的——上回发现的问题这次重点查。这跟 prompt 完全不同：prompt 是你亲自去每家店、每次都得从头交代；loop 是你设计了"每 5 分钟查一遍"的制度，制度越跑越聪明。
+      </div>
     </div>
     <div style="flex:0 0 280px;">
       <img src="screenshots/steinberger-devto.png" style="width:100%;border-radius:6px;border:1px solid var(--border);" loading="lazy" alt="Peter Steinberger 的 compound operations 工作流">
-      <div style="font-size:0.7em;color:var(--dim);margin-top:4px;text-align:center;">5 分钟 loop + skills 路由架构</div>
+      <div style="font-size:0.7em;color:#e6edf3;margin-top:4px;text-align:center;">5 分钟 loop + skills 路由架构</div>
     </div>
   </div>
   <details style="margin-top:12px;">
     <summary style="color:var(--accent);cursor:pointer;font-size:0.9em;">社区反馈</summary>
-    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:var(--dim);">
+    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:#e6edf3;">
       <p>X 上评论两极：39% 支持、61% 批评。主要批评点：(1) Token 成本——有人算了一笔账，5 分钟一个 loop 一个月烧几千刀；(2) "你是在开源维护吗？那还好。但在公司里？老板看到 loop 烧钱第一个砍掉。"</p>
       <p>Steinberger 的回应："你的时间真的不值那么多钱吗？"——但这被认为是一种精英视角。他还提到了 <strong>VISION.md</strong> 作为 loop 的反馈机制——loop 跑完对着 VISION 检查自己是否偏离目标。</p>
       <p>被普遍认可的一点：<strong>loop 不应该静默失败</strong>。Steinberger 的所有 loop 都有可见输出——要么落地代码，要么浮出 review 请求。</p>
@@ -315,20 +327,25 @@
   <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
     <div style="flex:1;min-width:280px;">
       <div style="font-weight:bold;font-size:1.1em;color:#d2991d;margin-bottom:2px;">OKF · Open Knowledge Format</div>
-      <div style="color:var(--dim);font-size:0.8em;margin-bottom:12px;">Google Cloud · 2026-06-12 · v0.1 · <a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf" target="_blank" style="color:var(--accent);">GitHub</a> · <a href="https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing" target="_blank" style="color:var(--accent);">Google Cloud Blog</a></div>
+      <div style="color:#e6edf3;font-size:0.8em;margin-bottom:12px;">Google Cloud · 2026-06-12 · v0.1 · <a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf" target="_blank" style="color:var(--accent);">GitHub</a> · <a href="https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing" target="_blank" style="color:var(--accent);">Google Cloud Blog</a></div>
       <p style="line-height:1.7;margin-bottom:12px;">
-        <strong>核心论点：</strong>知识 = <strong>带 YAML frontmatter 的 Markdown 文件目录</strong>——对人机同等友好。1 个概念 = 1 个 .md 文件，文件路径即概念 ID。三原则：<strong>最小约束</strong>（只有 <code>type</code> 是必填）、<strong>生产者/消费者独立</strong>（人写、LLM 生成、DB 导出都能被不同工具读）、<strong>格式不是平台</strong>（不需要 SDK、不需要 runtime、不需要账号）。
+        <strong>核心论点：</strong>知识 = <strong>带 YAML frontmatter 的 Markdown(标记文档) 文件目录</strong>——对人机同等友好。1 个概念 = 1 个 .md(标记文档) 文件，文件路径即概念 ID。三原则：<strong>最小约束</strong>（只有 <code>type</code> 是必填）、<strong>生产者/消费者独立</strong>（人写、LLM 生成、DB 导出都能被不同工具读）、<strong>格式不是平台</strong>（不需要 SDK、不需要 runtime、不需要账号）。
       </p>
-      <p style="line-height:1.7;">不依赖任何云服务。diffable、git-friendly、可 PR review、可 CI gate。Agent 读写苦力，人策展。</p>
+      <p style="line-height:1.7;">不依赖任何云服务。diffable（可差异比较）、git-friendly（版本控制友好）、可 PR review（PR审查）、可 CI gate（CI门禁）。Agent（智能体）读写苦力，人策展。
+      </p>
+      <div style="margin-top:12px;padding:14px;background:rgba(163,113,247,0.06);border-radius:6px;border:1px solid rgba(163,113,247,0.2);font-size:0.85em;line-height:1.7;">
+        <strong style="color:#a371f7;">费曼式解读</strong><br>
+        你家有几百本书、几十本相册、几十份合同——散落在各个抽屉和硬盘里。你老婆找东西靠吼："那个保险单在哪？" 你靠记忆："应该在书房第二个抽屉。" OKF 说：别这样。每样东西就是一个文件，文件名就是它是什么，文件开头几行写清楚标签——就跟图书馆一样，书架编号 = 文件夹路径，索引卡片 = YAML frontmatter（YAML前置元数据）。任何人（或任何AI）走进来，都能找到。不需要装 App、不需要注册账号、不需要联网。Google 把它写成标准，但说白了：就是写 Markdown（标记文档）文件，加个标签，放文件夹里。
+      </div></p>
     </div>
     <div style="flex:0 0 280px;">
       <img src="screenshots/okf-github.png" style="width:100%;border-radius:6px;border:1px solid var(--border);" loading="lazy" alt="OKF GitHub 仓库结构">
-      <div style="font-size:0.7em;color:var(--dim);margin-top:4px;text-align:center;">OKF v0.1 仓库结构和 YAML frontmatter 示例</div>
+      <div style="font-size:0.7em;color:#e6edf3;margin-top:4px;text-align:center;">OKF v0.1 仓库结构和 YAML frontmatter 示例</div>
     </div>
   </div>
   <details style="margin-top:12px;">
     <summary style="color:var(--accent);cursor:pointer;font-size:0.9em;">社区批评（Hacker News / Reddit）</summary>
-    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:var(--dim);">
+    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:#e6edf3;">
       <p><strong>"就这？Markdown + YAML 需要 15KB 规范？"</strong>——HN 高赞评论。团队早就在用 CLAUDE.md、AGENTS.md、Obsidian vaults 做同样的事，OKF 只是给了一个名字和最小规则。</p>
       <p><strong>Markdown 不是最佳格式</strong>——嵌套表格渲染差、布局/视觉语义无法捕获。如果目标消费者是 AI，为什么选一个为人类可读性优化的格式？</p>
       <p><strong>RDF/OWL 语义网的幽灵</strong>——"RDF/OWL 格式——我每十年重温一次。总有一天会成功的！（剧透：不会的。）"</p>
@@ -343,29 +360,33 @@
 </div>
 
 <h3>0.2 实战参考</h3>
-<p style="color:var(--dim);margin-bottom:16px;">三位在真实约束下跑了 6 个月以上的系统。他们的教训比理论家的建议更重。调研方法同上：读原文 → 搜社区讨论 → 提取可落地的部分。</p>
+<p style="color:#e6edf3;margin-bottom:16px;">三位在真实约束下跑了 6 个月以上的系统。他们的教训比理论家的建议更重。调研方法同上：读原文 → 搜社区讨论 → 提取可落地的部分。</p>
 
 <!-- KUN Studio -->
 <div class="card" style="border-color:#3fb950;margin-bottom:24px;">
   <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
     <div style="flex:1;min-width:280px;">
       <div style="font-weight:bold;font-size:1.1em;color:#3fb950;margin-bottom:2px;">KUN Studio · 4 Agent SaaS</div>
-      <div style="color:var(--dim);font-size:0.8em;margin-bottom:12px;">$15/月 Linux VPS · 130 项/天 · 6 个月稳定运行 · <a href="https://dev.to/kunstudio/how-i-built-an-ai-run-saas-with-4-llm-powered-executives-tutorial-c6f" target="_blank" style="color:var(--accent);">dev.to</a></div>
+      <div style="color:#e6edf3;font-size:0.8em;margin-bottom:12px;">$15/月 Linux VPS(云主机) · 130 项/天 · 6 个月稳定运行 · <a href="https://dev.to/kunstudio/how-i-built-an-ai-run-saas-with-4-llm-powered-executives-tutorial-c6f" target="_blank" style="color:var(--accent);">dev.to</a></div>
       <p style="line-height:1.7;margin-bottom:12px;">
-        <strong>核心架构：</strong>4 个 cron Agent 各司其职——Research、Writer、Editor、Publisher。<strong>Agent 之间不互相调用</strong>，通过 <code>./state/*.json</code> 共享数据。<strong>$5 审批线</strong>：任何操作预估成本超 $5 必须 Telegram 人工确认。"The day you add an interactive prompt is the day automation dies."
+        <strong>核心架构：</strong>4 个 cron(定时任务) Agent(智能体) 各司其职——Research、Writer、Editor、Publisher。<strong>Agent 之间不互相调用</strong>，通过 <code>./state/*.json</code> 共享数据。<strong>$5 审批线</strong>：任何操作预估成本超 $5 必须 Telegram 人工确认。"The day you add an interactive prompt（交互式确认） is the day automation dies（自动化死的那天）."
       </p>
+      <div style="margin-top:12px;padding:14px;background:rgba(163,113,247,0.06);border-radius:6px;border:1px solid rgba(163,113,247,0.2);font-size:0.85em;line-height:1.7;">
+        <strong style="color:#a371f7;">费曼式解读</strong><br>
+        你开了 4 个员工各管一摊：采购、文案、美工、发货。关键设计：<strong>他们之间不聊天、不开会、不互相派活</strong>。怎么协作？门口有个共享黑板（./state/*.json（状态JSON文件）），每人做完更新黑板。采购员看到黑板上"文案好了"就去下单。还有个硬规矩：谁要花超 5 块钱，必须给你打电话确认。为什么不能互相派活？因为一旦采购给美工派活，责任就乱了——采购派错了、美工照做了、你不查就没人知道。每人自己管自己，责任清清楚楚。
+      </div>
       <p style="line-height:1.7;margin-bottom:12px;">
         <strong>关键数据：</strong>130 项/天处理量、6 个月零人工干预稳定运行、$15/月 VPS 总成本。证明了<strong>低成本高吞吐的 Agent 系统可行</strong>。
       </p>
     </div>
     <div style="flex:0 0 280px;">
       <img src="screenshots/kun-studio-architecture.png" style="width:100%;border-radius:6px;border:1px solid var(--border);" loading="lazy" alt="KUN Studio 4 Agent 架构">
-      <div style="font-size:0.7em;color:var(--dim);margin-top:4px;text-align:center;">4 cron Agent + ./state/*.json 共享状态模型</div>
+      <div style="font-size:0.7em;color:#e6edf3;margin-top:4px;text-align:center;">4 cron Agent + ./state/*.json 共享状态模型</div>
     </div>
   </div>
   <details style="margin-top:12px;">
     <summary style="color:var(--accent);cursor:pointer;font-size:0.9em;">社区反馈</summary>
-    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:var(--dim);">
+    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:#e6edf3;">
       <p>dev.to 社区好评为主，但有两个质疑：(1) <strong>单一 VPS = 单点故障</strong>——$15/月的机器挂了整个 SaaS 停摆，作者承认"目前没有冗余"；(2) <strong>$5 审批线太粗</strong>——按项目维度累计还是按操作？Research agent 如果每次搜索都低于 $5 但累计 200 次，总成本可能远超预期。</p>
       <p>社区最赞赏的点：<strong>Agent 不互调</strong>——避免了链式调用的级联故障。一个 Agent 挂了不影响其他三个，各自从 state JSON 读最新数据就行。</p>
     </div>
@@ -382,24 +403,28 @@
   <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
     <div style="flex:1;min-width:280px;">
       <div style="font-weight:bold;font-size:1.1em;color:#58a6ff;margin-bottom:2px;">Koka Sexton · 三层质检机</div>
-      <div style="color:var(--dim);font-size:0.8em;margin-bottom:12px;">16 项检查 · 管理 4 个内容资产 · <a href="https://kokasexton.com/3-layer-quality-machine-editorial-excellence/" target="_blank" style="color:var(--accent);">原文</a></div>
+      <div style="color:#e6edf3;font-size:0.8em;margin-bottom:12px;">16 项检查 · 管理 4 个内容资产 · <a href="https://kokasexton.com/3-layer-quality-machine-editorial-excellence/" target="_blank" style="color:var(--accent);">原文</a></div>
       <p style="line-height:1.7;margin-bottom:12px;">
         <strong>L1 写前护栏：</strong>结构化内容简报在写作前强制执行——字数下限、2-4 个设计元素/篇、内部链接目标、<strong>8 种 AI 腔检测</strong>（"delve into"、"unleash"、"in today's fast-paced..." 等机械套话）。写之前就拦住，不是写完再改。
       </p>
       <p style="line-height:1.7;margin-bottom:12px;">
-        <strong>L2 编辑管线：</strong>Revise→Edit→Proofread 三阶段 + 16 点检查清单（禁词扫描、外链自动插入、编码验证、无障碍检查、SEO 验证）。<br>
+        <strong>L2 编辑管线：</strong>Revise→Edit→Proofread 三阶段 + 16 点检查清单（禁词扫描、外链自动插入、编码验证、无障碍检查、SEO(搜索引擎优化) 验证）。<br>
         <strong>L3 周度扫查：</strong>4 个 cron job 每周跨 4 个资产扫查——编码损坏、死链/缺组件、旧内容 AI 腔、设计元素最低数量。<br>
         <strong>闭环机制：</strong>L3 扫到的每一个错误反馈回 L1/L2 更新检查规则——系统持续学习，越跑越聪明。
       </p>
+      <div style="margin-top:12px;padding:14px;background:rgba(163,113,247,0.06);border-radius:6px;border:1px solid rgba(163,113,247,0.2);font-size:0.85em;line-height:1.7;">
+        <strong style="color:#a371f7;">费曼式解读</strong><br>
+        你是一家杂志社主编，每天收到几十篇稿子。以前你亲自一篇篇审，嗓子审哑了。Koka 的办法是建三条防线：<strong>第一道</strong>——作者动笔前，系统自动发一份"写作规范"（最少几个词、至少配几张图、不准用哪类套话）。写之前就拦住，不是写完再骂。<strong>第二道</strong>——稿子交上来后三道工序：先改结构（Revise（修改结构））、再改措辞（Edit（编辑措辞））、最后挑错字（Proofread（校对挑错）），16 项检查清单。你只过最后一眼。<strong>第三道</strong>——每周日晚上，系统自动扫过去一周所有发出去的稿子，找漏网之鱼。找到的每一条错误，<strong>反馈回第一道和第二道</strong>，下周的规则就更严了。这就是"闭环"——不是越跑越松，是越跑越聪明。
+      </div>
     </div>
     <div style="flex:0 0 280px;">
       <img src="screenshots/koka-sexton-3layer.png" style="width:100%;border-radius:6px;border:1px solid var(--border);" loading="lazy" alt="Koka Sexton 三层质检架构">
-      <div style="font-size:0.7em;color:var(--dim);margin-top:4px;text-align:center;">L1 护栏 → L2 管线 → L3 扫查 的闭环反馈</div>
+      <div style="font-size:0.7em;color:#e6edf3;margin-top:4px;text-align:center;">L1 护栏 → L2 管线 → L3 扫查 的闭环反馈</div>
     </div>
   </div>
   <details style="margin-top:12px;">
     <summary style="color:var(--accent);cursor:pointer;font-size:0.9em;">社区反馈与局限</summary>
-    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:var(--dim);">
+    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:#e6edf3;">
       <p>文章在内容营销圈反响积极，但观察到的局限：(1) <strong>纯文本质检</strong>——16 项检查全部针对文字内容，不覆盖代码质量、数据完整性、系统配置；(2) <strong>人工校准阶段</strong>——L1 的 AI 腔检测需要人工标注大量样本训练，作者承认前两周是"半自动"的；(3) <strong>跨资产差异</strong>——4 个内容资产各有风格指南，L1 规则需要按资产分别配置。</p>
     </div>
   </details>
@@ -415,18 +440,22 @@
   <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;">
     <div style="flex:1;min-width:280px;">
       <div style="font-weight:bold;font-size:1.1em;color:#d2991d;margin-bottom:2px;">wulixfr · 9 Agent Python</div>
-      <div style="color:var(--dim);font-size:0.8em;margin-bottom:12px;">~0€/月 · Windows schtasks · 免费层 · <a href="https://dev.to/wulixfr/how-i-built-9-ai-automation-agents-in-python-to-run-my-business-247-2ij" target="_blank" style="color:var(--accent);">dev.to</a></div>
+      <div style="color:#e6edf3;font-size:0.8em;margin-bottom:12px;">~0€/月 · Windows schtasks · 免费层 · <a href="https://dev.to/wulixfr/how-i-built-9-ai-automation-agents-in-python-to-run-my-business-247-2ij" target="_blank" style="color:var(--accent);">dev.to</a></div>
       <p style="line-height:1.7;margin-bottom:12px;">
         <strong>核心架构：</strong><code>BaseAgent</code> 五步骨架——load config → fetch → process → act → log。所有 9 个 Agent 继承这个基类。<strong>关键教训："先写骨架再造 Agent，第一天就跑通最简单那个。"</strong>不是设计完 9 个再动手，而是第一天让 1 个跑通，然后复制模式。
       </p>
       <p style="line-height:1.7;margin-bottom:12px;">
-        <strong>与我们最相关的：</strong>全免费层运营、Windows 原生、零服务器——和我们环境完全一致。用 Google Gemini 免费层 + Python，月成本近乎零。证明了<strong>"免费层足够跑生产级 Agent 系统"</strong>。
+        <strong>与我们最相关的：</strong>全免费层运营、Windows 原生、零服务器——和我们环境完全一致。用 Google Gemini 免费层 + Python（编程语言），月成本近乎零。证明了<strong>"免费层足够跑生产级 Agent（智能体）系统"</strong>。
       </p>
+      <div style="margin-top:12px;padding:14px;background:rgba(163,113,247,0.06);border-radius:6px;border:1px solid rgba(163,113,247,0.2);font-size:0.85em;line-height:1.7;">
+        <strong style="color:#a371f7;">费曼式解读</strong><br>
+        你想开 9 家街边档口，不用每家从零装修。你设计了"标准档口模板"——一个集装箱板房，里面水电煤气接口都统一。第一家先卖烤肠，跑通就赚第一块钱。然后第二家卖炒粉，还是这个模板，只换菜单和调料。9 家都跑在免费场地上（零租金），用的是你本来就在用的电表和水管（Windows schtasks（Windows任务计划程序））。核心教训就一条：<strong>别一开始就设计 9 家店。第一天让 1 家赚到钱，后面 8 家复制就行了。</strong>太多人画了完美的 9 家店规划图，一家都没开出来。
+      </div>
     </div>
   </div>
   <details style="margin-top:12px;">
     <summary style="color:var(--accent);cursor:pointer;font-size:0.9em;">社区反馈与局限</summary>
-    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:var(--dim);">
+    <div style="margin-top:8px;padding-left:12px;border-left:2px solid var(--border);font-size:0.85em;line-height:1.7;color:#e6edf3;">
       <p>dev.to 社区最关注的是<strong>免费层的可持续性</strong>——Gemini 免费层有速率限制和配额，依赖免费 API 的系统在生产规模下可能突然断供。9 个 Agent 的类型没有详细展开，社区希望看到每个 Agent 的具体职责和失败处理。</p>
       <p>但普遍认可：<strong>"先跑通最简单的"是最被低估的工程实践</strong>。太多人设计 9 个 Agent 的完美架构，结果一个都没跑通。</p>
     </div>
@@ -437,7 +466,7 @@
   </div>
   <div style="margin-top:4px;font-size:0.75em;"><strong>术语：</strong><em>BaseAgent</em> = 所有 Agent 继承的基类，定义统一的 config→fetch→process→act→log 生命周期。 <em>schtasks</em> = Windows 任务计划程序命令行工具，相当于 Linux cron。</div>
 </div><h3>0.3 本地约束</h3>
-<p style="color:var(--dim);">这些不是理论，是已经存在的代码和决策，设计必须兼容。</p>
+<p style="color:#e6edf3;">这些不是理论，是已经存在的代码和决策，设计必须兼容。</p>
 
 <div class="ref-grid">
   <div class="ref-card d">
