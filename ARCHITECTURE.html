@@ -775,7 +775,7 @@ section { margin: 100px 0; }
 <div style="font-weight:bold;color:#7C3AED;margin-bottom:8px;font-size:0.95em;">确认为资产 · 2 项（不改，但要守住）</div>
 <ol style="padding-left:20px;line-height:1.8;font-size:0.85em;">
   <li><strong>工具架已成型</strong>——agentboard :3099 有 38 个工具注册，API 合约稳定，conflicts + agent_notes 协议存在。基座已在，只加标准接入层，不动骨架</li>
-  <li><strong>技术栈统一</strong>——Node.js + PowerShell + Claude Code CLI，DeepSeek 单一供应商。统一 = 运维成本低。不允许引入新语言/新运行时打破这条</li>
+  <li><strong>接口标准化（不改），运行时/模型可插拔（不锁）</strong>——health.json + manifest.json + 文件通信 = 任何 Agent、任何模型都能接入的兼容层。当前实现是 Node.js + Claude Code + DeepSeek，但架构不依赖它们——换模型不需要改接口，换 Agent 运行时不需要改协议。可插拔的前提是层层解耦，解耦的锚点是接口，不是技术栈</li>
 </ol>
 </div>
 
