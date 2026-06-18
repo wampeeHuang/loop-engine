@@ -47,7 +47,7 @@
 
 | 文件 | 当前位置 | 应放位置 | 偏差 |
 |------|---------|---------|------|
-| CLAUDE.md | `2026-06-15-loop-engine/CLAUDE.md` ✅ | 项目根 | 无 |
+| CLAUDE.md | `loop-engine/CLAUDE.md` ✅ | 项目根 | 无 |
 | health.json | `notebook/health.json` ✅ | notebook/ | 无 |
 | loop-dashboard.html | `~/.agentboard/loop-dashboard.html` | wire/ | 外部依赖 — agentboard 需要由此路径 serve。在 CLAUDE.md 标注 |
 | server.js loop routes | `~/.agentboard/server.js` | wire/ | 外部依赖 — agentboard 基座。不搬 |

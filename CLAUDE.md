@@ -7,7 +7,7 @@
 
 - **当前状态**: 已就位。`alarm/loop-tasks.json` 定义 3 个任务（每周自检/交叉验证/汇总提报）。
 - **注册方式**: `alarm/register.ps1` → aion-kit (`:3099`)，或 `alarm/scheduler.ps1` → Windows 任务计划器（零依赖）。
-- **参考实现**: aion-kit (`D:\Claude code_workspace\2026-06-15-aion-kit`) 是闹钟组件的独立实现。
+- **参考实现**: aion-kit (`D:\workspace\2026-06-15-aion-kit`) 是闹钟组件的独立实现。
 
 ## 工位
 
@@ -26,7 +26,7 @@
 | L3 文档 | `handbook/prompts/` | Agent 执行指令模板(daily-self-audit.md) |
 | L3 面板 | `~/.agentboard/loop-dashboard.html` | 联邦健康面板（agentboard /loop 路由） |
 | L3 API | `~/.agentboard/server.js` § loop routes | `/api/loop/health`, `/loop` |
-| 闹钟引擎 | `D:\Claude code_workspace\2026-06-15-aion-kit` | aion-kit cron 调度器 (`:3099/cron`) |
+| 闹钟引擎 | `D:\workspace\2026-06-15-aion-kit` | aion-kit cron 调度器 (`:3099/cron`) |
 
 **技能 vs 项目关系**: loop-audit skill 是执行标准，loop-engine 项目是系统总目录。skill 路径不能搬（Claude Code 只发现 `~/.claude/skills/`），但本项目的 CLAUDE.md 是系统的唯一宪法。
 
@@ -85,7 +85,7 @@
 
 | 项目 | 值 |
 |------|-----|
-| 工作目录 | `D:\Claude code_workspace\2026-06-15-loop-engine` |
+| 工作目录 | `D:\workspace\loop-engine` |
 | 面板地址 | `http://localhost:3099/loop` |
 | 面板源码 | `~/.agentboard/loop-dashboard.html` |
 | 技能目录 | `~/.claude/skills/loop-audit/` |

@@ -3,7 +3,7 @@
   "tasks": [
     {
       "project_id": "loop-engine",
-      "project_dir": "D:\\Claude code_workspace\\2026-06-15-loop-engine",
+      "project_dir": "D:\\workspace\\loop-engine",
       "name": "每周自检",
       "cron_expr": "0 9 * * 1",
       "prompt": "运行 loop-audit 技能审计 loop-engine 项目自身。检查 8 组件健康状态，更新 notebook/health.json，追加 notebook/events.jsonl。如果发现组件降级，按 escalation/rules.json 分级提报。",
@@ -12,7 +12,7 @@
     },
     {
       "project_id": "loop-engine",
-      "project_dir": "D:\\Claude code_workspace\\2026-06-15-loop-engine",
+      "project_dir": "D:\\workspace\\loop-engine",
       "name": "交叉验证抽查",
       "cron_expr": "0 14 * * 3",
       "prompt": "运行 inspector/verify.js 对被审计项目做交叉验证。随机选一个已审计项目，对比其 health.json 的 today 字段与实际产出文件，标记不一致项。结果写入 notebook/events.jsonl。",
@@ -21,7 +21,7 @@
     },
     {
       "project_id": "loop-engine",
-      "project_dir": "D:\\Claude code_workspace\\2026-06-15-loop-engine",
+      "project_dir": "D:\\workspace\\loop-engine",
       "name": "每周汇总提报",
       "cron_expr": "0 17 * * 5",
       "prompt": "汇总本周所有被审计项目的健康状态，生成摘要。如果所有项目绿灯，不发提报。如果有项目连续 2 次审计异常，按 escalation/rules.json L2 级别推送飞书。",
