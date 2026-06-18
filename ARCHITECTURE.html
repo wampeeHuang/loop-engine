@@ -1934,7 +1934,7 @@ agentboard 读 health.json，score 跌破阈值时触发 alarm 提报。
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
 
 <div style="padding:12px 14px;background:rgba(220,38,38,0.08);border-radius:6px;border-left:3px solid #DC2626;">
-  <strong style="color:#DC2626;">Phase 0 · 止血（当前）</strong>
+  <strong style="color:#DC2626;">Phase 0 · 止血（已完成 ✅）</strong>
   <p style="margin:6px 0 0 0;font-size:0.82em;color:var(--dim);line-height:1.7;">
   删错误目录、tokens 实际提取、两真相源统一、旧路径更新、loop-engine git init、scheduler 加 stderr 日志、cron 成功判定改"产出文件存在"、workspace 级 CLAUDE.md。
   </p>
@@ -1942,7 +1942,7 @@ agentboard 读 health.json，score 跌破阈值时触发 alarm 提报。
 </div>
 
 <div style="padding:12px 14px;background:rgba(202,138,4,0.1);border-radius:6px;border-left:3px solid #CA8A04;">
-  <strong style="color:#CA8A04;">Phase 1 · 补基础设施</strong>
+  <strong style="color:#CA8A04;">Phase 1 · 补基础设施（已完成 ✅）</strong>
   <p style="margin:6px 0 0 0;font-size:0.82em;color:var(--dim);line-height:1.7;">
   备份脚本（robocopy → F 盘）、骨件 git init、workspace-keeper 巡检技能（7 规则）、agent_notes 协议落地、标准文件夹模板 v1.0.0 + 验证器。
   </p>
@@ -2016,8 +2016,8 @@ agentboard 读 health.json，score 跌破阈值时触发 alarm 提报。
       ✅ evopearl-data 两真相源统一（git pull _runtime → workspace）<br>
       ✅ jobs.json 旧路径更新<br>
       ✅ loop-engine 项目 git init——3 commits，ARCHITECTURE.html 有版本历史<br>
-      ⬜ scheduler 加 stderr 日志——6/17 无声失败的根因<br>
-      ⬜ cron job 成功判定改为"产出文件存在"而非仅"进程退出码 0"<br>
+      ✅ scheduler 加 stderr 日志——每次运行后 stderr → ~/.agentboard/cron/stderr.log（含成功和失败），5000 行滚动清理<br>
+      ✅ cron 成功判定改为产出文件存在——OUPUT_FILES 映射 + verifyOutput() 检查文件存在且非空，缺失时标记 output_missing<br>
       ✅ D:\workspace\CLAUDE.md workspace 级规范已写入（三段生命周期 + 触发规则 + 备份命令）
     </p>
     <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:0.82em;">
@@ -2032,17 +2032,17 @@ agentboard 读 health.json，score 跌破阈值时触发 alarm 提报。
   <div class="sop-body">
     <h4><span class="phase-label" style="color:var(--orange);">补基础设施</span> 备份 + 巡检 + 工具 AI 自发现</h4>
     <p>
-      ⬜ 备份脚本 cron 注册（robocopy 命令已在 workspace CLAUDE.md）<br>
-      ⬜ ~/.agentboard + ~/.claude 初始化 git（排除 _runtime/ 和 state/）<br>
+      ✅ 备份脚本 cron 注册——backup.ps1(robocopy /MIR 5路), runner.js新增runShell(kind=shell), 每日3:15自动执行<br>
+      ✅ ~/.agentboard + ~/.claude git 已初始化——各有3+ commits，.gitignore 排除 _runtime/ 和 state/<br>
       ✅ workspace-keeper 技能：7 条巡检规则已定义（git/备份/产出/日志/磁盘/交叉验证/结构合规）<br>
-      ⬜ agent_notes 协议落地：AI 每次调工具前读 conflicts + notes<br>
+      ✅ agent_notes 协议落地——全局 CLAUDE.md + agentboard CLAUDE.md 定义调用前必读 conflicts+notes，47 工具全部有 agent_notes<br>
       ✅ HANDOFF.md 已纳入标准模板（gitignore 不进历史，每会话覆盖）
               ✅ 标准文件夹模板 v1.0.0：D:\workspace\_templates\default-project\，git 管理，14 files
               ✅ test-structure.ps1 验证器：读 _manifest.json，校验任意项目结构合规
               ✅ loop-init 改为 robocopy 从模板复制 + 验证器自检
     </p>
     <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border);font-size:0.82em;">
-      <span class="verify">验证</span> F 盘备份文件数 ≥ C 盘源文件数；workspace-keeper 巡检跑通返回 7 项结果；模板 ALL PASS（13/13 required + 8/8 optional + 3/3 rules）<br>
+      <span class="verify">验证</span> F 盘备份 job 注册成功（5/5 jobs 可见）；backup.ps1 执行通过；骨件 git log 存在；agent_notes 47/47 工具覆盖<br>
       <span class="rollback">回滚</span> robocopy 备份有 /MIR 镜像，可直接反向 robocopy 恢复；~/.agentboard git 用 git reset 回退误提交
     </div>
   </div>
