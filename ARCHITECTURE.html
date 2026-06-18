@@ -378,7 +378,7 @@ section { margin: 100px 0; }
 <div class="chapter-tldr">
 <div class="tldr-header">
   <span class="tldr-label">核心结论</span>
-  <h3>七案例，六决策</h3>
+  <h3>七案例，七决策</h3>
   <p>分析了 4 个理论框架 + 3 个实战系统后形成的设计决策——不是"看到了什么"，是"决定了什么"。</p>
 </div>
 <div class="tldr-body">
@@ -386,7 +386,7 @@ section { margin: 100px 0; }
 <div class="finding-grid">
 
 <div>
-<div style="font-weight:bold;margin-bottom:8px;font-size:0.95em;color:var(--accent);">纳入设计 · 6 项</div>
+<div style="font-weight:bold;margin-bottom:8px;font-size:0.95em;color:var(--accent);">纳入设计 · 7 项</div>
 <ol style="padding-left:20px;line-height:1.8;font-size:0.85em;">
   <li><strong>反馈环思维</strong>——设计让 AI 去 prompt AI 的环，不做一次性指令（Osmani + Boris + Steinberger）</li>
   <li><strong>失败必须可见</strong>——所有 loop 有可观测输出，禁止静默失败（全部案例的共同底线）</li>
@@ -394,17 +394,17 @@ section { margin: 100px 0; }
   <li><strong>对错可判交机器，判断留给人</strong>——Boris Underfund + Koka L1→L2→L3 质检模型</li>
   <li><strong>先跑通最简单的，再复制模式</strong>——wulixfr 第一天 1 个 Agent + KUN 4 Agent 独立运行</li>
   <li><strong>$5 审批线</strong>——KUN Studio 成本护栏，用约束驱动自动化而非堆资源</li>
+  <li><strong>git worktree 多项目隔离</strong>——多 Agent 并发操作不同项目时，各自在独立 worktree 里互不干扰，不用 stash 切换。维护成本极低（add/remove 两个命令），多项目并发场景收益远大于零成本</li>
 </ol>
 </div>
 
 <div>
-<div style="font-weight:bold;margin-bottom:8px;font-size:0.95em;color:var(--red);">明确拒绝 · 7 项</div>
+<div style="font-weight:bold;margin-bottom:8px;font-size:0.95em;color:var(--red);">明确拒绝 · 6 项</div>
 <ol style="padding-left:20px;line-height:1.8;font-size:0.85em;">
   <li><strong>数百并行实例</strong>（Boris）——单机 + DeepSeek 按 token 付费，跑不起</li>
   <li><strong>Linux cron + VPS</strong>（KUN）——Windows schtasks 是既定环境</li>
   <li><strong>Gemini 免费层</strong>（wulixfr）——模型策略不同，用 DeepSeek / aigoapi</li>
-  <li><strong>链式 Agent 路由</strong>（Steinberger）——单机过度工程，直接调比多层路由简单</li>
-  <li><strong>Worktrees</strong>（Osmani）——六原语裁一，单机 git worktree 多余</li>
+  <li><strong>链式 Agent 路由</strong>（Steinberger）——单机过度工程，直接调比多层路由简单。Claude Code 一个 session 已内置规划→编码→审查→测试的完整流程，拆成五个独立 Agent 只增加 IPC 开销和故障面</li>
   <li><strong>纯文本质检</strong>（Koka）——需覆盖代码 + 数据 + 配置，维度更广</li>
   <li><strong>Google Cloud 托管</strong>（OKF）——本地文件系统 + git 完全够用</li>
 </ol>
@@ -419,6 +419,7 @@ section { margin: 100px 0; }
   <li>OKF Markdown+YAML → 文件知识库（handbook/）</li>
   <li>wulixfr "第一天跑通" → loop-init 技能（§5 分阶段施工）</li>
   <li>全部案例共识 → 禁止静默失败写入宪法红线</li>
+  <li>Worktrees → 工作区隔离（§4 详细设计）——多 Agent 并发时 each 在自己的 worktree 里操作，项目间物理隔离</li>
 </ol>
 </div>
 
@@ -443,9 +444,10 @@ section { margin: 100px 0; }
       <p style="line-height:1.7;margin-bottom:12px;">
         <strong>核心论点：</strong>人从"写 prompt 的人"变成"设计系统的人"。Loop = Automations + Worktrees + Skills + Connectors + Sub-agents + State/Memory。关键是<strong>设计反馈环</strong>，不是写一次性指令。
       </p>
-      <p style="line-height:1.7;margin-bottom:8px;"><strong>六原语 → 五宫位：</strong>Osmani 定义 6 个原语，本架构裁掉 Worktrees（单机 git worktree 多余），保留 5 个：</p>
+      <p style="line-height:1.7;margin-bottom:8px;"><strong>六原语全收：</strong>Osmani 定义 6 个原语，全部纳入：</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:12px;font-size:0.85em;">
         <div class="comp-card"><strong>Automations</strong><br><span>→ 闹钟 · 定时触发</span></div>
+        <div class="comp-card"><strong>Worktrees</strong><br><span>→ 工作区隔离 · 多项目并发保护</span></div>
         <div class="comp-card"><strong>Skills</strong><br><span>→ 工位 · 执行技能</span></div>
         <div class="comp-card"><strong>Connectors</strong><br><span>→ 电话线 · 外部连接</span></div>
         <div class="comp-card"><strong>Sub-agents</strong><br><span>→ 子代理 · 委派子任务</span></div>
@@ -473,7 +475,7 @@ section { margin: 100px 0; }
   </details>
   <div class="borrow-row">
     <span class="take">借鉴</span> 反馈环设计思维（不是写死流程，是设计自修正机制）。comprehension debt 概念直接纳入设计原则。cognitive surrender 提醒我们——人在 loop 中的角色是策展和判断，不是旁观。<br>
-    <span class="skip">不借鉴</span> 六原语全落地 → 只需 5 个（工位已由 Claude Code 原生覆盖，Worktrees 对单机多余）。Google Cloud 的 ASR 系统案例：花了 3 个月调试一个 <code>CI=true</code> 环境变量——我们不需要那个复杂度。
+    <span class="skip">不借鉴</span> Google Cloud 的 ASR 系统案例：花了 3 个月调试一个 <code>CI=true</code> 环境变量——我们不需要那个复杂度。
   </div>
   <div class="term-row"><strong>术语：</strong><em>comprehension debt</em> = loop 产出速度超出人类理解速度时积累的认知负债。 <em>cognitive surrender</em> = 人放弃主动判断、被动接受 AI 输出的状态。
 </div>
@@ -754,7 +756,7 @@ section { margin: 100px 0; }
 <div style="font-weight:bold;margin-bottom:8px;font-size:0.95em;color:var(--accent);">纳入改造 · 5 项</div>
 <ol style="padding-left:20px;line-height:1.8;font-size:0.85em;">
   <li><strong>无声失败是系统性问题</strong>——stderr 不进文件 + 成功判定只看退出码 + tokens 硬编码 0。三缺陷叠加。这是 Phase 0 止血的第一刀</li>
-  <li><strong>调度器三权分立</strong>——agentboard / OpenClaw / schtasks 三层共存，没有一处能回答"现在有哪些 cron 在跑"。统一收敛到 alarm/ 定义 + agentboard 执行</li>
+  <li><strong>调度器双轨制</strong>——agentboard scheduler + OpenClaw gateway 两套 cron 各自跑，没有一处能回答"现在有哪些任务在执行"。OpenClaw 已决定从调度链切割，收敛到 agentboard 统一执行</li>
   <li><strong>骨件无版本控制</strong>——~/.agentboard、~/.claude、~/.openclaw 全裸奔。ARCHITECTURE.html 改坏了只能靠记忆恢复。Phase 1 补 git</li>
   <li><strong>19 项目散乱 + 无健康评分</strong>——workspace 13 个 + 根目录 6 个，边界模糊。所有项目无量化的健康指标，靠人工发现故障。Phase 2 标准化</li>
   <li><strong>骨件管理权分散</strong>——三目录各自独立，宪法/技能/memory/cron 分散三处。一个统一的骨件管理入口比分别治理更可持续</li>
@@ -912,8 +914,8 @@ section { margin: 100px 0; }
     <tr>
       <td><strong>OpenClaw gateway</strong></td>
       <td><code>~/.openclaw/cron/jobs.json</code></td>
-      <td>4 个 cron job（进化猫 × 3 + 个体户 × 1）· 远程 gateway 触发 · 独立 session 执行</td>
-      <td class="warn">3 启用 1 禁用 · 依赖 gateway 存活</td>
+      <td>4 个 cron job（进化猫 × 3 + 个体户 × 1）· 远程 gateway 触发</td>
+      <td class="warn">计划退役 · 任务逐步迁回 agentboard scheduler → 最终 cut</td>
     </tr>
     <tr>
       <td><strong>Windows schtasks</strong></td>
@@ -926,8 +928,8 @@ section { margin: 100px 0; }
 
 <div class="principle">
   <div class="p-title">核心问题：双调度器依赖</div>
-  agentboard scheduler 和 OpenClaw gateway 都依赖各自服务存活。任一挂了，对应的 cron 全停。<br>
-  <strong>目标：</strong>全部迁移到 Windows schtasks + 项目内 crontab.txt，实现零外部依赖。
+  agentboard scheduler 自管 cron，不依赖外部 gateway。OpenClaw 的 cron 层已决定切割。<br>
+  <strong>目标：</strong>cron 定义在项目 alarm/crontab.txt，执行在 agentboard scheduler，schtasks 仅做进程守护（scheduler 挂了拉起来）。
 </div>
 
 <h3>1.7 外部依赖与密钥</h3>
@@ -1064,8 +1066,8 @@ section { margin: 100px 0; }
   </div>
   <div class="pain-item" style="border-color: var(--red);">
     <div class="pain-num" style="color:var(--muted);">11</div>
-    <div class="pain-title">双调度器耦合</div>
-    <div class="pain-cause">agentboard + OpenClaw 两套调度，互相不知对方在跑什么。停一个不影响另一个——但你不知道到底哪些任务在跑</div>
+    <div class="pain-title">双调度器耦合（正在切割）</div>
+    <div class="pain-cause">agentboard + OpenClaw 两套调度。已决定 OpenClaw cron 层退役，全量迁回 agentboard——切割中</div>
   </div>
   <div class="pain-item" style="border-color: var(--red);">
     <div class="pain-num" style="color:var(--muted);">12</div>
@@ -1128,7 +1130,7 @@ section { margin: 100px 0; }
     <tr><td>W1</td><td><strong>宪法红线</strong> · <code>~/.claude/CLAUDE.md</code></td><td>行为规则的唯一真相源。红线清单（删除/密钥/git push/全局安装/公开发布）锚定所有 agent 行为</td><td>先改宪法，再改代码。不先斩后奏</td></tr>
     <tr><td>W2</td><td><strong>agentboard :3099</strong> API 合约</td><td>38 工具注册 + cron 调度 + 健康面板依赖此接口。断 = 全停</td><td>新版 API 兼容旧版跑 7 天，验证后再下线旧版</td></tr>
     <tr><td>W3</td><td><strong>notebook/health.json</strong> schema</td><td>agentboard 自动发现项目的唯一硬接口。字段名/类型 = 合约</td><td>加字段可以，改已有字段 = 破坏性变更</td></tr>
-    <tr><td>W4</td><td><strong>~/.openclaw/cron/jobs.json</strong> 格式</td><td>OpenClaw gateway 调度源。改格式 = 所有 cron 停摆</td><td>test job 先验，gateway 正常再全量切</td></tr>
+    <tr><td>W4</td><td><strong>~/.openclaw/cron/jobs.json</strong> 格式（过渡期）</td><td>OpenClaw gateway 调度源，4 个 cron job 仍在此运行。退役前保持兼容，改格式 = 所有仍在跑的 cron 停摆</td><td>先迁移完所有 job 到 agentboard，再动此文件。迁移完成后此承重墙自动消失</td></tr>
     <tr><td>W5</td><td><strong>D:\workspace\</strong> 根路径约定</td><td>所有项目、agentboard 扫描、备份脚本依赖此根</td><td>搬目录 = 全局路径重写，需全量回归</td></tr>
     <tr><td>W6</td><td><strong>Vortex :7897</strong> 代理</td><td>所有 CLI 工具联网唯一出口。关了 = Claude Code / npm / git push 全断</td><td>换代理方案需全量验证所有 CLI 联网路径</td></tr>
   </tbody>
