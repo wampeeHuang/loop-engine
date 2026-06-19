@@ -1,4 +1,4 @@
-# {{PROJECT_NAME}} — 架构文档
+# loop-engine — 架构文档
 
 > 本文档写给接手这个 loop 项目的人（人类 + Agent）。
 

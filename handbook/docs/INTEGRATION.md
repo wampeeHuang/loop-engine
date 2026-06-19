@@ -1,4 +1,4 @@
-# {{PROJECT_NAME}} — 接入指南
+# loop-engine — 接入指南
 
 > 外部系统（人或其他 Agent）怎么用这个项目的产出。
 
