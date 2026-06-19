@@ -77,7 +77,7 @@ my-loop-project/
 
 ### 1. 理解概念
 
-打开 `ARCHITECTURE.html` 看完整设计文档——调研了什么、为什么这样设计、每一步的决策记录。
+打开 [`ARCHITECTURE-generic.html`](ARCHITECTURE-generic.html) 看完整设计文档——调研了什么、为什么这样设计、每一步的决策记录。通用版，零个人信息，可对外发布。
 
 ### 2. 从模板初始化新项目
 
@@ -122,7 +122,8 @@ node inspector/verify.js
 
 ## 配套资源
 
-- `ARCHITECTURE.html` — 完整设计文档（含调研、选型、施工记录）
+- [`ARCHITECTURE-generic.html`](ARCHITECTURE-generic.html) — 完整设计文档 · 通用版（含调研、选型、施工记录，零个人信息，可对外发布）
+- `ARCHITECTURE.html` — 原版（含本地环境信息，仅内部参考）
 - `~/.claude/skills/loop-audit/` — 审计技能（8 组件差距分析）
 - `~/.claude/skills/loop-init/` — 初始化技能（4 Phase 引导搭建）
 - `~/.agentboard/loop-dashboard.html` — 联邦健康面板
