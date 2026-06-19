@@ -74,7 +74,7 @@
 
 ### 完整方法论
 
-👉 **[ARCHITECTURE-generic.html](ARCHITECTURE-generic.html)** — 含全部调研细节、方案对比、决策记录（1400 行，零个人信息，可直接对外发布）
+👉 **[在线浏览](https://wampeehuang.github.io/loop-engine/ARCHITECTURE-generic.html)** · [源码](ARCHITECTURE-generic.html) — 含全部调研细节、方案对比、决策记录（1400 行，零个人信息，可直接对外发布）
 
 ---
 
