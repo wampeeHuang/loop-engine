@@ -6,13 +6,13 @@
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-const WORKSPACE = 'D:\\Claude code_workspace';
+const WORKSPACE = 'D:\\workspace';
 const MAX_HEALTH_AGE_HOURS = 48; // health.json 超过此时间视为过期
 const MIN_OUTPUT_FILES = 1;      // 产出目录至少要有文件
 
 function findAuditedProjects() {
     const dirs = readdirSync(WORKSPACE, { withFileTypes: true })
-        .filter(d => d.isDirectory() && d.name.match(/^\d{4}-\d{2}-\d{2}-/))
+        .filter(d => d.isDirectory())
         .map(d => join(WORKSPACE, d.name));
 
     return dirs.filter(dir => existsSync(join(dir, 'LOOP_AUDIT.md')));

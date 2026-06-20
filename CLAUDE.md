@@ -5,9 +5,9 @@
 
 ## 闹钟
 
-- **当前状态**: 已就位。`alarm/loop-tasks.json` 定义 3 个任务（每周自检/交叉验证/汇总提报）。
-- **注册方式**: `alarm/register.ps1` → aion-kit (`:3099`)，或 `alarm/scheduler.ps1` → Windows 任务计划器（零依赖）。
-- **参考实现**: aion-kit 是闹钟组件的独立实现（见 `handbook/docs/INTEGRATION.md`）。
+- **当前状态**: 已注册运行。3 个任务（每周一自检/周三交叉验证/周五汇总提报）。
+- **注册方式**: 已注册到 OpenClaw cron（`~/.openclaw/cron/jobs.json`）。备用：`alarm/scheduler.ps1` → Windows 任务计划器（需管理员权限）。
+- **aion-kit**: 已归档至 `D:\workspace\_archive\2026-06-15-aion-kit\`，未上线。loop-engine 不走 aion-kit。
 
 ## 工位
 
@@ -26,7 +26,7 @@
 | L3 文档 | `handbook/prompts/` | Agent 执行指令模板(daily-self-audit.md) |
 | L3 面板 | `~/.agentboard/loop-dashboard.html` | 联邦健康面板（agentboard /loop 路由） |
 | L3 API | `~/.agentboard/server.js` § loop routes | `/api/loop/health`, `/loop` |
-| 闹钟引擎 | aion-kit（外部依赖） | cron 调度器，通过 API 注册任务 |
+| 闹钟引擎 | OpenClaw cron（`~/.openclaw/cron/jobs.json`） | 7 个 cron job，3 个 loop-engine 专属 |
 
 **技能 vs 项目关系**: loop-audit skill 是执行标准，loop-engine 项目是系统总目录。skill 路径不能搬（Claude Code 只发现 `~/.claude/skills/`），但本项目的 CLAUDE.md 是系统的唯一宪法。
 
@@ -35,7 +35,7 @@
 | 连接 | 方式 | 位置 |
 |------|------|------|
 | 各项目 health.json | agentboard `/api/loop/health` 扫描 `_runtime/` | server.js |
-| 飞书提报 | （待建）每个项目独立的 webhook | 各项目 escalation/ |
+| 飞书提报 | wire/notify.ps1 已就位 · webhook URL 待配置 | escalation/rules.json |
 | 联邦面板 | agentboard `/loop` 路由 | loop-dashboard.html |
 
 ## 质检员

@@ -1222,7 +1222,37 @@ section { margin: 100px 0; }
 </div>
 
 <h3>4.4 外部 API 调用模型</h3>
-<p style="color:var(--dim);">针对非本地 LLM 的外部 API 调用（生图、语音、第三方数据）。</p>
+
+<div class="principle">
+  <div class="p-title">不同计费模型需要不同的护栏——按 token / 按张 / 按秒 / 按调用的风险剖面完全不同</div>
+  用同一根审批线管所有 API 类型 = 要么文本太松（白设），要么生图太紧（阻碍使用），要么视频生成太危险（单次可能远超阈值）。
+</div>
+
+<table style="margin-top:16px;">
+  <thead><tr><th>计费模型</th><th>典型 API</th><th>单次失控风险</th><th>累计失控风险</th><th>防护策略</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>按 token</strong></td>
+      <td>LLM 推理</td><td>低（单次便宜）</td><td>中（Agent 死循环反复调）</td><td>单次硬阻断 + 每日总量软告警</td>
+    </tr>
+    <tr>
+      <td><strong>按张</strong></td>
+      <td>图片生成</td><td>中（批量脚本忘加 limit）</td><td>中</td><td>单次阻断 + 频率上限 + 批量前 dry-run</td>
+    </tr>
+    <tr>
+      <td><strong>按秒</strong></td>
+      <td>语音/视频生成</td><td><strong>高</strong>（视频按分钟计）</td><td>低（天然低频）</td><td>单次阻断 + 最大时长硬限制 + 预估确认</td>
+    </tr>
+    <tr>
+      <td><strong>按调用</strong></td>
+      <td>工作流/第三方 SaaS</td><td>低</td><td>低（token 过期 = 静默失败）</td><td>定期检查凭证有效期 + 过期前告警</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="hl hl-g" style="margin-top:16px;">
+  <strong>设计决策：</strong>单次硬阻断防爆炸，每日软告警防慢漏。两者互补不互替。KUN 社区已验证：纯累计审批线的问题在于 Agent 每次低于阈值但累计失控。
+</div>
 
 <h4>三个护栏</h4>
 
@@ -1232,19 +1262,19 @@ section { margin: 100px 0; }
     <tr>
       <td>1</td>
       <td><strong>密钥隔离</strong></td>
-      <td>所有外部 API 密钥存在面板（骨），项目 wire/ 只声明"我需要这个能力"</td>
+      <td>所有外部 API 密钥存在骨目录，项目只声明需要的能力</td>
       <td>电话线模型</td>
     </tr>
     <tr>
       <td>2</td>
       <td><strong>计费审批线</strong></td>
-      <td>每次调用超过阈值，暂停并通知人工确认</td>
+      <td>按计费类型分别设阈值，单次调用超阈值暂停并通知人工确认</td>
       <td>KUN Studio 审批线</td>
     </tr>
     <tr>
       <td>3</td>
       <td><strong>调用频率上限</strong></td>
-      <td>每个 API 每日/每小时上限在 wire/ 声明</td>
+      <td>每个 API 每日/每小时上限在项目配置中声明</td>
       <td>权限收敛原则</td>
     </tr>
   </tbody>
@@ -1253,10 +1283,49 @@ section { margin: 100px 0; }
 <h3>4.5 备份体系</h3>
 
 <div class="principle">
-  <div class="p-title">三层备份</div>
+  <div class="p-title">三层备份，三种灾难场景，三条恢复路径</div>
   <strong>L1 · git push</strong>——所有项目（肉）有 git remote，代码 + 配置文件 push 到远程。<br>
   <strong>L2 · 镜像</strong>——骨件 + 产出物增量同步到外部磁盘。<br>
   <strong>L3 · 云盘</strong>——关键配置定期打包上传，异地容灾。
+</div>
+
+<h4 style="margin-top:20px;">灾难恢复</h4>
+
+<div class="sop-step">
+  <div class="sop-num">S1</div>
+  <div class="sop-body">
+    <h4>单项目代码丢失</h4>
+    <p>从 git remote 重新 clone。代码在 GitHub，丢失只影响本地副本。</p>
+    <div class="sop-check"><span class="verify">恢复：</span>git clone 回本地即可，项目目录结构按模板重建</div>
+  </div>
+</div>
+
+<div class="sop-step">
+  <div class="sop-num">S2</div>
+  <div class="sop-body">
+    <h4>系统盘崩溃，骨件全丢</h4>
+    <p>从外部磁盘镜像恢复。骨件每日增量同步到独立物理磁盘。</p>
+    <div class="sop-check"><span class="verify">恢复：</span>robocopy / rsync 从镜像盘整目录复制回来</div>
+  </div>
+</div>
+
+<div class="sop-step">
+  <div class="sop-num">S3</div>
+  <div class="sop-body">
+    <h4>硬件全毁（火灾/勒索/双盘同时挂）</h4>
+    <p>从云盘 + GitHub 重建。所有代码在 GitHub，关键配置在云盘。</p>
+    <div class="sop-check">
+      <span class="verify">步骤 1：</span>新机器装系统 + 基础工具链<br>
+      <span class="verify">步骤 2：</span>git clone 所有 repo（仓库清单独立备份在云盘）<br>
+      <span class="verify">步骤 3：</span>从云盘恢复骨件配置<br>
+      <span class="verify">步骤 4：</span>跑 bootstrap 脚本一键重建
+    </div>
+  </div>
+</div>
+
+<div class="hl hl-p" style="margin-top:16px;">
+  <strong>恢复优先级：</strong>先恢复调度（让自动化跑起来），再恢复面板（让状态可见），最后逐个恢复项目代码。<br>
+  <strong>验证标准：</strong>恢复后跑交叉验证脚本——对比健康记录和实际文件，确认数据一致。
 </div>
 
 </details>

@@ -14,7 +14,7 @@ if (-not (Test-Path $TasksFile)) {
 
 $tasks = Get-Content $TasksFile -Raw -Encoding UTF8 | ConvertFrom-Json
 $projectDir = (Get-Location).Path
-$taskNamePrefix = "loop-$($tasks.'$description'.Split('—')[0].Trim())"
+$taskNamePrefix = "loop-engine"
 
 # 解析 cron 表达式为 schtasks /sc 参数
 function Parse-CronToSchtasks($cron) {
