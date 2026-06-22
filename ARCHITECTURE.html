@@ -402,7 +402,7 @@ nav a:hover, nav a.active { color: var(--accent); }
 <h3>4.3 Loop Monitor — 联邦健康面板</h3>
 
 <div class="principle">
-  <div class="p-title">http://localhost:3099/loop — 整套架构唯一的人可见界面</div>
+  <div class="p-title">http://localhost:3100/loop — 整套架构唯一的人可见界面</div>
   它不写数据、不调任务、不存状态。它只读。所有项目在同一个页面上并排对比，标红不标绿。
 </div>
 
@@ -429,11 +429,9 @@ nav a:hover, nav a.active { color: var(--accent); }
 
 <h4>它在三骨中的位置</h4>
 <div class="arch">
-  <div class="arch-box"><h4>③ scheduler</h4><ul><li>巡检 cron job</li><li>写 health.json</li></ul></div>
+  <div class="arch-box"><h4>③ scheduler</h4><ul><li>巡检 cron job</li><li>写 health.json</li><li>Serve /loop :3100</li></ul></div>
   <div class="arch-arrow">→</div>
-  <div class="arch-box"><h4>② agentboard</h4><ul><li>/loop 路由</li><li>读 health.json</li><li>渲染面板</li></ul></div>
-  <div class="arch-arrow">→</div>
-  <div class="arch-box"><h4>人</h4><ul><li>浏览器打开 :3099/loop</li><li>看，不操作</li></ul></div>
+  <div class="arch-box"><h4>人</h4><ul><li>浏览器打开 :3100/loop</li><li>看，不操作</li></ul></div>
 </div>
 
 <h3>4.4 接口契约</h3>
