@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inspector — 质检员</title>
+<style>
+:root {
+  --bg: #faf9f5; --bg-card: #fff; --fg: #141413; --fg-2: #30302e; --fg-3: #5e5d59; --fg-dim: #94938d;
+  --accent: #3b82f6; --green: #3b7d4b; --green-bg: rgba(59,125,75,0.08);
+  --yellow: #c7902b; --yellow-bg: rgba(199,144,43,0.08);
+  --red: #c44e3e; --red-bg: rgba(196,78,62,0.06);
+  --border: #e8e6dc; --border-light: #d1cfc5;
+  --radius: 12px; --radius-sm: 8px;
+  --f-heading: "Outfit", "Noto Sans SC", system-ui, sans-serif;
+  --f-body: "DM Sans", "Noto Sans SC", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", "JetBrains Mono", monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:var(--f-body); font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+.container { max-width: 960px; margin:0 auto; padding:0 24px; }
+
+.header { padding:40px 0 0; display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+.header h1 { font-family:var(--f-heading); font-size:28px; font-weight:700; letter-spacing:-0.4px; }
+.header h1 span { color:var(--accent); }
+.header-actions { display:flex; gap:8px; align-items:center; }
+.btn { display:inline-flex; align-items:center; gap:6px; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; border:none; font-family:var(--f-body); transition:all 0.2s; }
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-primary:hover { background:#2563eb; }
+.btn-primary:disabled { opacity:0.5; cursor:not-allowed; }
+.btn-outline { background:var(--bg-card); border:1px solid var(--border); color:var(--fg-2); }
+.btn-outline:hover { border-color:var(--border-light); }
+
+.banner { margin-top:24px; padding:16px 20px; border-radius:var(--radius); font-size:14px; display:flex; align-items:center; gap:10px; }
+.banner-healthy { background:var(--green-bg); color:var(--green); border:1px solid rgba(59,125,75,0.15); }
+.banner-error { background:var(--red-bg); color:var(--red); border:1px solid rgba(196,78,62,0.15); }
+.banner-unknown { background:rgba(0,0,0,0.03); color:var(--fg-3); border:1px solid var(--border); }
+.banner-icon { font-size:18px; }
+
+.checks { margin-top:24px; display:flex; flex-direction:column; gap:8px; }
+.check-row { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px 20px; display:flex; align-items:center; gap:14px; }
+.check-row.fail { border-color:rgba(196,78,62,0.2); background:var(--red-bg); }
+.check-row.warn { border-color:rgba(199,144,43,0.2); background:var(--yellow-bg); }
+.check-icon { font-size:18px; flex-shrink:0; }
+.check-label { font-weight:600; font-size:14px; min-width:160px; }
+.check-detail { font-size:13px; color:var(--fg-3); flex:1; }
+.check-sev { font-size:11px; font-weight:600; text-transform:uppercase; padding:2px 8px; border-radius:10px; }
+.check-sev.error { background:var(--red-bg); color:var(--red); }
+.check-sev.warn { background:var(--yellow-bg); color:var(--yellow); }
+
+.history { margin-top:28px; }
+.history h3 { font-family:var(--f-heading); font-size:16px; margin-bottom:12px; color:var(--fg-2); }
+.history-ticks { display:flex; gap:6px; flex-wrap:wrap; }
+.history-tick { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; cursor:default; }
+.history-tick.pass { background:var(--green-bg); color:var(--green); }
+.history-tick.fail { background:var(--red-bg); color:var(--red); }
+
+.escalation { margin-top:28px; }
+.escalation h3 { font-family:var(--f-heading); font-size:16px; margin-bottom:12px; color:var(--fg-2); }
+.esc-item { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:8px; }
+.esc-time { font-family:var(--f-mono); font-size:12px; color:var(--fg-dim); margin-bottom:6px; }
+.esc-fail { font-size:13px; color:var(--red); }
+
+.meta { margin-top:8px; font-size:12px; color:var(--fg-dim); font-family:var(--f-mono); }
+
+.footer { margin-top:40px; padding:24px 0; border-top:1px solid var(--border); font-size:12px; color:var(--fg-dim); }
+
+@keyframes spin { to { transform:rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1><span>&#9670;</span> Inspector</h1>
+      <div style="font-size:14px;color:var(--fg-3);margin-top:4px;">质检员 — 独立巡检，不寄生任何骨件</div>
+    </div>
+    <div class="header-actions">
+      <span id="updateTime" style="font-size:13px;color:var(--fg-dim);font-family:var(--f-mono)">--</span>
+      <button class="btn btn-primary" id="runBtn" onclick="runInspector()">&#9654; 触发巡检</button>
+    </div>
+  </div>
+
+  <div id="banner"></div>
+  <div class="checks" id="checks"></div>
+  <div class="history" id="historySec"><h3>巡检历史</h3><div class="history-ticks" id="historyTicks"></div></div>
+  <div class="escalation" id="escSec"><h3>待呈报</h3><div id="escList"></div></div>
+  <div class="meta">golden-checks.json v<span id="gv">--</span> · 更新于 <span id="gu">--</span></div>
+  <div class="footer">&copy; Inspector · 巡检脚本纯确定性，不调 LLM · :3101</div>
+</div>
+
+<!--INSPECTOR_DATA-->
+<script>
+var D = window.__inspector || { golden:{checks:[]}, latest:null, history:[], escalation:[], healthy:null };
+
+function runInspector() {
+  var btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin">&#9670;</span> 巡检中...';
+  fetch('/api/run', { method:'POST' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.ok) location.reload();
+      else alert('巡检失败: ' + d.error);
+    })
+    .catch(function(e){ alert('巡检失败: ' + e.message); })
+    .finally(function(){ btn.disabled = false; btn.innerHTML = '&#9654; 触发巡检'; });
+}
+
+function render() {
+  if (D.latest) {
+    document.getElementById('updateTime').textContent = new Date(D.latest.timestamp).toLocaleString('zh-CN', {hour12:false});
+  }
+
+  // Banner
+  var banner = document.getElementById('banner');
+  if (D.healthy === null) {
+    banner.className = 'banner banner-unknown';
+    banner.innerHTML = '<span class="banner-icon">&#9670;</span> 尚未执行巡检。点击"触发巡检"开始。';
+  } else if (D.healthy) {
+    banner.className = 'banner banner-healthy';
+    banner.innerHTML = '<span class="banner-icon">&#9670;</span> <strong>全部通过</strong> — 所有检查项正常';
+  } else {
+    banner.className = 'banner banner-error';
+    var failCount = D.latest ? D.latest.checks.filter(function(c){ return !c.pass; }).length : 0;
+    banner.innerHTML = '<span class="banner-icon">&#9670;</span> <strong>' + failCount + ' 项未通过</strong> — 需要关注';
+  }
+
+  // Checks
+  var checksHtml = '';
+  var checkDefs = D.golden.checks || [];
+  if (D.latest && D.latest.checks) {
+    D.latest.checks.forEach(function(c){
+      var icon = c.pass ? '&#9670;' : (c.severity === 'warn' ? '&#9670;' : '&#9670;');
+      var rowCls = c.pass ? '' : (c.severity === 'warn' ? 'warn' : 'fail');
+      var iconColor = c.pass ? 'var(--green)' : (c.severity === 'warn' ? 'var(--yellow)' : 'var(--red)');
+      checksHtml += '<div class="check-row ' + rowCls + '">'
+        + '<span class="check-icon" style="color:' + iconColor + '">' + icon + '</span>'
+        + '<span class="check-label">' + c.label + '</span>'
+        + '<span class="check-detail">' + c.detail + '</span>'
+        + '<span class="check-sev ' + c.severity + '">' + c.severity + '</span>'
+        + '</div>';
+    });
+  } else {
+    checkDefs.forEach(function(c){
+      checksHtml += '<div class="check-row">'
+        + '<span class="check-icon" style="color:var(--fg-dim)">&#9670;</span>'
+        + '<span class="check-label">' + c.label + '</span>'
+        + '<span class="check-detail" style="color:var(--fg-dim)">等待巡检</span>'
+        + '<span class="check-sev ' + c.severity + '">' + c.severity + '</span>'
+        + '</div>';
+    });
+  }
+  document.getElementById('checks').innerHTML = checksHtml;
+
+  // History ticks
+  var ticksHtml = '';
+  D.history.slice().reverse().forEach(function(h){
+    var cls = h.ok ? 'pass' : 'fail';
+    var symbol = h.ok ? '&#9670;' : '&#9670;';
+    ticksHtml += '<div class="history-tick ' + cls + '" title="' + new Date(h.timestamp).toLocaleString('zh-CN',{hour12:false}) + '">' + symbol + '</div>';
+  });
+  if (ticksHtml === '') ticksHtml = '<span style="color:var(--fg-dim);font-size:13px">尚无记录</span>';
+  document.getElementById('historyTicks').innerHTML = ticksHtml;
+
+  // Escalation
+  var escHtml = '';
+  if (D.escalation && D.escalation.length > 0) {
+    D.escalation.slice().reverse().forEach(function(e){
+      var fails = e.failed.map(function(f){ return f.label; }).join(', ');
+      escHtml += '<div class="esc-item"><div class="esc-time">' + new Date(e.timestamp).toLocaleString('zh-CN',{hour12:false}) + '</div><div class="esc-fail">' + fails + '</div></div>';
+    });
+  } else {
+    escHtml = '<span style="color:var(--fg-dim);font-size:13px">无待呈报事项</span>';
+  }
+  document.getElementById('escList').innerHTML = escHtml;
+
+  // Meta
+  document.getElementById('gv').textContent = D.golden.version || '--';
+  document.getElementById('gu').textContent = D.golden.updated || '--';
+}
+
+render();
+</script>
+</body>
+</html>

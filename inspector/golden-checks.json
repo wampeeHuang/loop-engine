@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "updated": "2026-06-22",
+  "checks": [
+    {
+      "id": "manifest_schema",
+      "label": "Manifest Schema 合规",
+      "what": "42 个工具的 manifest.json 全部通过 schema 校验",
+      "source": "agentboard lib/manifest-schema.js auditAll()",
+      "severity": "error"
+    },
+    {
+      "id": "runtime_drift",
+      "label": "运行时漂移",
+      "what": "声明端口在监听、projectPath 存在、startCommand 可执行",
+      "source": "agentboard lib/manifest-schema.js auditRuntime()",
+      "severity": "error"
+    },
+    {
+      "id": "cron_triggered",
+      "label": "Cron 今日触发",
+      "what": "所有注册的 cron 任务今日至少触发一次",
+      "source": "scheduler scheduler-state.json",
+      "severity": "error"
+    },
+    {
+      "id": "cron_output",
+      "label": "Cron 产出非空",
+      "what": "今日成功运行的 cron 任务有有效产出",
+      "source": "scheduler scheduler-state.json lastOutput",
+      "severity": "warn"
+    },
+    {
+      "id": "backup_complete",
+      "label": "备份完成",
+      "what": "备份日志显示最近一次备份成功",
+      "source": "scheduler backup.log",
+      "severity": "error"
+    },
+    {
+      "id": "disk_usage",
+      "label": "磁盘空间",
+      "what": "C/D/F 盘剩余空间 > 10GB",
+      "source": "os fs.statfs / wmic",
+      "severity": "warn"
+    }
+  ]
+}

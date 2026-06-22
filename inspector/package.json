@@ -1,0 +1,13 @@
+{
+  "name": "inspector",
+  "version": "1.0.0",
+  "description": "Inspector — 质检员。纯确定性巡检脚本，不调 LLM。",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node checks.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

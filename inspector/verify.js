@@ -3,8 +3,10 @@
 // 默认随机选一个已审计项目。
 // 零依赖，Node.js 内置模块。
 
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+var fs = require('node:fs');
+var readFileSync = fs.readFileSync, readdirSync = fs.readdirSync, existsSync = fs.existsSync, statSync = fs.statSync;
+var path = require('node:path');
+var join = path.join, resolve = path.resolve;
 
 const WORKSPACE = 'D:\\workspace';
 const MAX_HEALTH_AGE_HOURS = 48; // health.json 超过此时间视为过期
