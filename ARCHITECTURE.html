@@ -399,7 +399,44 @@ nav a:hover, nav a.active { color: var(--accent); }
 8 组件归入 3 骨，闭环。质检员 (inspector) 替代了独立 eval 骨的功能——操作日志 + cron 状态 + 漂移检测 = 当前的质检实现。
 </p>
 
-<h3>4.3 接口契约</h3>
+<h3>4.3 Loop Monitor — 联邦健康面板</h3>
+
+<div class="principle">
+  <div class="p-title">http://localhost:3099/loop — 整套架构唯一的人可见界面</div>
+  它不写数据、不调任务、不存状态。它只读。所有项目在同一个页面上并排对比，标红不标绿。
+</div>
+
+<h4>怎么用</h4>
+<table>
+  <thead><tr><th>操作</th><th>方式</th></tr></thead>
+  <tbody>
+    <tr><td>看全局</td><td>顶部 banner + 四张统计卡（联邦项目数、今日任务完成率、组件缺失数、提报状态）</td></tr>
+    <tr><td>看单个项目</td><td>点击项目卡片展开 → 今日任务、提报通道、8 组件逐项亮灯（绿/黄/灰/红）</td></tr>
+    <tr><td>打开本地文件夹</td><td>点击项目路径 → 资源管理器直接跳到项目目录</td></tr>
+    <tr><td>刷新</td><td>点"刷新"按钮 → 重新读各项目 health.json</td></tr>
+    <tr><td>回工具架</td><td>左上角"← 工具架"链接</td></tr>
+  </tbody>
+</table>
+
+<h4>数据怎么来的</h4>
+<div class="principle">
+  <strong>不是实时轮询。</strong>面板是纯读层，数据来自两个静态文件：<br>
+  · 各项目的 <code>notebook/health.json</code> — 由巡检 cron job 定期写入<br>
+  · scheduler 的 <code>scheduler-state.json</code> — 由调度器自身维护<br><br>
+  巡检 cron → 跑检查 → 写 health.json → 面板刷新时读取。面板挂了不影响任何项目运行，项目挂了面板会标红。<br>
+  <strong>面板是窗户，不是发动机。</strong>
+</div>
+
+<h4>它在三骨中的位置</h4>
+<div class="arch">
+  <div class="arch-box"><h4>③ scheduler</h4><ul><li>巡检 cron job</li><li>写 health.json</li></ul></div>
+  <div class="arch-arrow">→</div>
+  <div class="arch-box"><h4>② agentboard</h4><ul><li>/loop 路由</li><li>读 health.json</li><li>渲染面板</li></ul></div>
+  <div class="arch-arrow">→</div>
+  <div class="arch-box"><h4>人</h4><ul><li>浏览器打开 :3099/loop</li><li>看，不操作</li></ul></div>
+</div>
+
+<h3>4.4 接口契约</h3>
 
 <table>
   <thead><tr><th>接口</th><th>格式</th><th>谁写</th><th>谁读</th></tr></thead>
@@ -416,7 +453,7 @@ nav a:hover, nav a.active { color: var(--accent); }
   任何工具通过这个文件读项目状态。不调 API，不连数据库，不依赖面板。文件在项目在。
 </div>
 
-<h3>4.4 备份体系</h3>
+<h3>4.5 备份体系</h3>
 <table>
   <thead><tr><th>层级</th><th>内容</th><th>方式</th></tr></thead>
   <tbody>
