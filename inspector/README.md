@@ -1,31 +1,7 @@
-# 质检员 — 独立验证
+# Inspector 已迁至 C 盘
 
-独立于生成者的验证。不能让生成者自己判"搞定"。
+原型孵化地 → `~/.inspector/` 正式服役。
 
-## 核心问题
-
-Agent 说"做完了"——你怎么知道真的做完了？你怎么知道不是 Agent 为了凑"通过"而删了检查？
-
-## 古德哈特防护三问
-
-每个验证条件必须通过这三问：
-
-1. **Agent 能通过删除/跳过/修改检查项来"通过"验证吗？** 如果能 → 验证条件太弱
-2. **验证条件有边界约束吗？** 如"items 数量不得少于昨天"、"文件大小不能突降 50%"
-3. **验证者是生成者的对手方吗？** 不同模型/不同脚本/至少不同 prompt
-
-## 本项目的质检脚本
-
-`inspector/verify.js` — 交叉验证被审计项目：
-
-- 随机选一个已审计项目
-- 读它的 `notebook/health.json`
-- 对比 health.json 的 `today.jobs_completed` 和实际产出文件
-- 检查 health.json 的 `updated` 时间戳是否在预期窗口内
-- 结果写入 `notebook/events.jsonl`
-
-## 设计原则
-
-1. **验证和生成分开**：生成 Agent 不跑验证脚本。验证脚本由另一个 Agent 或闹钟触发
-2. **验证失败不自动修**：标记异常 → 提报。不是"验证失败→重试生成→直到通过"
-3. **边界约束写到验证里**：`items.length >= yesterdayItems * 0.5 AND items.length > 0`
+- 工具架: `~/.agentboard/tools/inspector/manifest.json`
+- 面板: http://localhost:3101
+- Git: https://github.com/wampeeHuang/inspector
