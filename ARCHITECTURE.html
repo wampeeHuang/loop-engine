@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loop Engine 架构设计</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap');
+
+:root {
+  --bg:       #FAFAFA;
+  --surface:  #FFFFFF;
+  --border:   #D0D0D0;
+  --text:     #1A1A1A;
+  --text-soft:#555555;
+  --muted:    #888888;
+  --accent:   #2563EB;
+  --green:    #16A34A;
+  --orange:   #CA8A04;
+  --red:      #DC2626;
+  --purple:   #7C3AED;
+  --bone:     #B91C1C;
+  --meat:     #1D4ED8;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.75; font-size: 15px;
+}
+
+h2 {
+  font-family: 'Noto Serif SC', 'Georgia', serif;
+  font-weight: 700; font-size: 1.6em;
+  margin: 0 0 28px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+h3 {
+  font-family: 'Noto Serif SC', 'Georgia', serif;
+  font-weight: 600; font-size: 1.15em;
+  margin: 32px 0 12px; color: var(--text);
+}
+h4 { font-weight: 600; font-size: 1em; margin: 20px 0 8px; color: var(--text-soft); }
+p { margin: 8px 0; }
+ul, ol { padding-left: 22px; margin: 8px 0; }
+li { margin: 4px 0; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 28px 32px; margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+table { width: 100%; border-collapse: collapse; margin: 14px 0 22px; font-size: 13px; }
+thead th {
+  background: rgba(0,0,0,0.02); text-align: left; padding: 10px 14px;
+  font-weight: 600; color: var(--text-soft); font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 2px solid var(--border);
+}
+tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+
+.tree {
+  font-family: 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.85em; line-height: 1.8; padding: 16px 20px;
+  background: #F5F5F5; border-radius: 6px; border: 1px solid var(--border);
+  overflow-x: auto; white-space: pre;
+}
+.tree .bone  { color: var(--bone); }
+.tree .meat  { color: var(--meat); }
+.tree .iface { color: var(--purple); }
+.tree .dim   { color: var(--muted); }
+
+.arch { display: flex; gap: 12px; align-items: stretch; margin: 16px 0; flex-wrap: wrap; }
+.arch-box {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px; min-width: 180px; flex: 1;
+}
+.arch-box h4 { margin-bottom: 8px; font-size: 0.95em; }
+.arch-box ul { list-style: none; font-size: 0.85em; }
+.arch-box li { padding: 3px 0; color: var(--text-soft); }
+.arch-arrow {
+  display: flex; align-items: center; font-size: 1.4em; color: var(--muted);
+  min-width: 40px; justify-content: center;
+}
+
+.legend { display: flex; gap: 16px; margin: 8px 0 16px; font-size: 0.85em; }
+.legend span { display: flex; align-items: center; gap: 6px; }
+.legend .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.legend .dot.bone  { background: var(--bone); }
+.legend .dot.meat  { background: var(--meat); }
+.legend .dot.iface { background: var(--purple); }
+
+.principle {
+  border-left: 2px solid var(--border); padding: 10px 16px;
+  background: rgba(0,0,0,0.015); border-radius: 0 6px 6px 0;
+  margin: 12px 0;
+}
+.principle .p-title { font-weight: bold; margin-bottom: 4px; }
+
+.chapter-tldr {
+  margin: 48px 0 56px; padding: 0;
+  border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+  background: var(--surface); box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+}
+.chapter-tldr .tldr-header {
+  padding: 36px 40px 32px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,0.012);
+}
+.chapter-tldr .tldr-header .tldr-label {
+  font-size: 0.68em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.18em;
+}
+.chapter-tldr .tldr-header h3 {
+  margin: 10px 0 0 0; font-size: 1.45em; color: var(--text); font-weight: 700;
+  line-height: 1.3;
+}
+.chapter-tldr .tldr-header p {
+  margin: 12px 0 0 0; color: var(--text-soft); font-size: 0.95em; line-height: 1.75;
+}
+.chapter-tldr .tldr-body { padding: 32px 40px; }
+
+.take { color: var(--accent); font-weight: bold; }
+.skip { color: var(--red); font-weight: bold; }
+.warn { color: var(--orange); }
+.good { color: var(--green); }
+
+main { max-width: 940px; margin: 0 auto; padding: 48px 24px 80px; }
+
+nav {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(250,250,250,0.92); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border); padding: 12px 24px;
+  display: flex; gap: 20px; flex-wrap: wrap; font-size: 13px;
+}
+nav a { color: var(--text-soft); text-decoration: none; font-weight: 500; }
+nav a:hover, nav a.active { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#ref">0. 参考</a>
+  <a href="#principles">1. 原则</a>
+  <a href="#goal">2. 目标</a>
+  <a href="#pick">3. 选型</a>
+  <a href="#design">4. 设计</a>
+  <a href="#build">5. 施工</a>
+  <a href="#log">6. 决策</a>
+</nav>
+
+<main>
+
+<!-- ==================== 0. 参考案例 ==================== -->
+<h2 id="ref">0. 参考案例</h2>
+
+<div class="chapter-tldr">
+<div class="tldr-header">
+  <span class="tldr-label">核心结论</span>
+  <h3>站在三件事的肩膀上</h3>
+  <p>不是从零发明。参考来自实战、理论和工具。</p>
+</div>
+<div class="tldr-body">
+
+<table>
+  <thead><tr><th>来源</th><th>核心贡献</th><th>借了什么</th></tr></thead>
+  <tbody>
+    <tr><td>Karpathy (2026.02)</td><td>Agentic Engineering 四柱：CLAUDE.md + Skills + Subagents + Hooks</td><td><span class="take">取</span> 四柱框架 — 已全部对应到三骨中</td></tr>
+    <tr><td>Karpathy AutoResearch</td><td>700 次实验验证二元断言模型：过/不过，不搞打分</td><td><span class="take">取</span> 二元信号优于 LLM 打分 — 已体现在巡检逻辑</td></tr>
+    <tr><td>O'Reilly (2026)</td><td>AI Agents 六层栈：Memory / Guardrails / Protocols / Execution / Eval / Bootstrap</td><td><span class="take">取</span> 分层思想 — 三骨各覆盖多层，不追求一一对应</td></tr>
+    <tr><td>Anthropic (2026.05)</td><td>Claude Code 三周三次质量回归，内部 eval 没拦住</td><td><span class="skip">反</span> 在没被坑之前不建独立 eval 骨 — 巡检已够用</td></tr>
+    <tr><td>Claude Code Skills</td><td>技能 = 按需加载的 ≤200 行知识文件</td><td><span class="take">取</span> skill 化 — eval 规则也应按 skill 模板分发，不独立成骨</td></tr>
+  </tbody>
+</table>
+
+</div>
+</div>
+
+<!-- ==================== 1. 设计原则 ==================== -->
+<h2 id="principles">1. 设计原则</h2>
+
+<div class="chapter-tldr">
+<div class="tldr-header">
+  <span class="tldr-label">核心结论</span>
+  <h3>五条原则，从痛点到原则</h3>
+  <p>每条原则对应一个曾经踩过的坑。</p>
+</div>
+<div class="tldr-body">
+
+<div class="principle">
+  <div class="p-title">① 唯一真相源</div>
+  每条数据只有一个家，所有视图都是读出来的。真相在文件里，不在服务里。服务是代理，不是主人。
+</div>
+
+<div class="principle">
+  <div class="p-title">② 骨肉物理隔离</div>
+  骨件（C 盘）可复制，肉件（D 盘）是成果。骨头负责运行，肉负责产出。骨挂了不影响项目运行。
+</div>
+
+<div class="principle">
+  <div class="p-title">③ 薄工具架</div>
+  定义在项目，执行在调度器，面板做可见性。工具架熄了，项目照跑。面板是窗户，不是发动机。
+</div>
+
+<div class="principle">
+  <div class="p-title">④ 独立可替换</div>
+  每块骨头是独立进程+独立目录，通过文件读写通信。一块挂了不影响其他。可单独 git，可单独重启，可单独替换。
+</div>
+
+<div class="principle">
+  <div class="p-title">⑤ 设计以痛点为锚</div>
+  不预建框架等坑来填。每个功能对应一个曾经真实发生的失败。没被坑过的不建独立骨件。
+</div>
+
+<h4>三大当前痛点</h4>
+<table>
+  <thead><tr><th>#</th><th>痛点</th><th>根因</th><th>对应设计</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>备份不完整，恢复路径不确定</td><td>备份分散，无统一验证</td><td>warehouse 统一备份 + 各骨 git push</td></tr>
+    <tr><td>2</td><td>服务状态不可见</td><td>端口/进程/产出无统一视图</td><td>巡检 cron job + 漂移检测 + loop monitor</td></tr>
+    <tr><td>3</td><td>AI agent 行为无边界</td><td>规则散落，无硬阻断</td><td>CLAUDE.md 宪法 + 权限弹窗 + 红线</td></tr>
+  </tbody>
+</table>
+
+</div>
+</div>
+
+<!-- ==================== 2. 设计目标 ==================== -->
+<h2 id="goal">2. 设计目标</h2>
+
+<div class="chapter-tldr">
+<div class="tldr-header">
+  <span class="tldr-label">核心结论</span>
+  <h3>四个可验证目标 + 四个明确不做</h3>
+</div>
+<div class="tldr-body">
+
+<h4>成功标准（可验证）</h4>
+<table>
+  <thead><tr><th>#</th><th>目标</th><th>验证方式</th></tr></thead>
+  <tbody>
+    <tr><td>G1</td><td>任何工具可通过标准接口读项目状态</td><td class="good">health.json 能被 loop monitor 正确解析</td></tr>
+    <tr><td>G2</td><td>项目独立运行，不依赖面板</td><td class="good">关掉 agentboard :3099，cron 任务照跑</td></tr>
+    <tr><td>G3</td><td>故障 5 分钟内可观测</td><td class="good">巡检周期 ≤ 5min，标红项在 loop monitor 可见</td></tr>
+    <tr><td>G4</td><td>新机器 30 分钟内恢复</td><td class="good">三骨 git clone + 各骨自带 README/setup</td></tr>
+  </tbody>
+</table>
+
+<h4>非目标（明确不做）</h4>
+<table>
+  <thead><tr><th>#</th><th>不做的事</th><th>为什么</th></tr></thead>
+  <tbody>
+    <tr><td>N1</td><td>独立 eval 骨件</td><td>操作日志 + cron 状态 + 漂移检测已覆盖巡检需求。等被 agent 骗了再补二元断言</td></tr>
+    <tr><td>N2</td><td>审批流引擎（guardrails 骨）</td><td>宪法红线 + 权限弹窗 + 人肉确认已够用。等红线痛点出现再自动化</td></tr>
+    <tr><td>N3</td><td>bootstrap 骨件</td><td>派生品不配当骨。各骨件自己的 setup 自己管（各自 git repo 自带）</td></tr>
+    <tr><td>N4</td><td>自动自愈</td><td>先做到可见，再做自愈。盲人摸象式自愈比不治更危险</td></tr>
+  </tbody>
+</table>
+
+</div>
+</div>
+
+<!-- ==================== 3. 方案选型 ==================== -->
+<h2 id="pick">3. 方案选型</h2>
+
+<div class="chapter-tldr">
+<div class="tldr-header">
+  <span class="tldr-label">核心结论</span>
+  <h3>薄工具架 4/4 胜出</h3>
+  <p>厚工具架 vs 薄工具架。用 Karpathy 四标准判胜负。</p>
+</div>
+<div class="tldr-body">
+
+<table>
+  <thead><tr><th>维度</th><th>厚工具架（框架式）</th><th>薄工具架（联邦式）</th></tr></thead>
+  <tbody>
+    <tr><td>定义在哪</td><td>面板是主人，工具向面板注册</td><td class="good">定义在项目，面板只读</td></tr>
+    <tr><td>执行在哪</td><td>面板调工具</td><td class="good">调度器独立进程，面板不参与执行路径</td></tr>
+    <tr><td>面板挂了</td><td class="warn">所有工具不可见、不可管</td><td class="good">项目照跑，只失去可见性</td></tr>
+    <tr><td>加新项目</td><td>改面板代码</td><td class="good">只加 manifest.json</td></tr>
+  </tbody>
+</table>
+
+<h4>Karpathy 四标准判胜负</h4>
+<table>
+  <thead><tr><th>标准</th><th>厚工具架</th><th>薄工具架</th></tr></thead>
+  <tbody>
+    <tr><td>① 关键路径最短</td><td class="warn">面板在关键路径</td><td class="good">面板不在关键路径</td></tr>
+    <tr><td>② 故障隔离最好</td><td class="warn">面板 = 单点</td><td class="good">骨肉天然隔离</td></tr>
+    <tr><td>③ 新人最快理解</td><td class="warn">需理解框架约定</td><td class="good">看 manifest.json 即懂</td></tr>
+    <tr><td>④ 改动最少牵连</td><td class="warn">改面板影响全局</td><td class="good">改一个项目只动一个 manifest</td></tr>
+  </tbody>
+</table>
+
+<p style="margin-top:16px;"><strong>结论：薄工具架 4/4 全胜。</strong>唯一真相源是项目目录里的文件，不是面板服务。</p>
+
+</div>
+</div>
+
+<!-- ==================== 4. 详细设计 ==================== -->
+<h2 id="design">4. 详细设计</h2>
+
+<div class="chapter-tldr">
+<div class="tldr-header">
+  <span class="tldr-label">核心结论</span>
+  <h3>三块骨头 + 八组件健康</h3>
+  <p>骨头负责运行，八组件负责每个项目的健康度量。骨可复制，肉是每个人自己的成果。</p>
+</div>
+<div class="tldr-body">
+
+<h3>4.1 三骨件</h3>
+
+<div class="principle">
+  <div class="p-title">骨 = 三块：合约 → 目录 → 程序</div>
+  骨的本质是可复制的设计模式。三块骨头覆盖 AI Agent 运行所需的全部基础设施：<br><br>
+  <strong>① ~/.claude/</strong> — Memory & Knowledge + Guardrails。宪法 + 技能 + 记忆 + 红线规则。AI 的行为边界由这里定义。<br>
+  <strong>② ~/.agentboard/</strong> — Protocols & Tools。工具架 + 面板 + manifest 注册。工具的发现、启停、监控界面。<br>
+  <strong>③ ~/.scheduler/</strong> — Execution + Observability。调度器 + 执行器 + 运行时状态 + 巡检。独立进程 :3100。<br><br>
+  为什么没有 eval / guardrails / bootstrap？<br>
+  · eval — 操作日志 + cron 状态 + 漂移检测已覆盖当前巡检需求。等被 agent 幻觉骗了再建二元断言模版，不独立成骨。<br>
+  · guardrails — 宪法已有红线，权限弹窗 + 人肉确认已够用。等红线痛点出现再自动化。<br>
+  · bootstrap — 派生品，无自有真相源。各骨件自己的 setup 自己管（各自 git repo 自带 README）。
+</div>
+
+<div class="legend">
+  <span><span class="dot bone"></span> 骨 — 基件，运行在 C 盘</span>
+  <span><span class="dot meat"></span> 肉 — 肌件，属于各项目（D 盘）</span>
+  <span><span class="dot iface"></span> 紫 — 接口/协议</span>
+</div>
+
+<h4>骨件目录结构</h4>
+<div class="tree"><span class="dim">~/.claude/</span>
+├── CLAUDE.md              <span class="bone"># 宪法（全局行为规则）</span>
+├── skills/                <span class="bone"># 技能定义</span>
+├── settings.json          <span class="bone"># Claude Code 配置（MCP / Hooks）</span>
+└── projects/.../memory/   <span class="bone"># 跨会话记忆</span>
+
+<span class="dim">~/.agentboard/</span>
+├── server.js              <span class="dim"># HTTP :3099 — 可见性层</span>
+├── mcp-server.js          <span class="iface"># MCP stdio — AI 接口</span>
+├── index.html             <span class="dim"># 工具架面板</span>
+├── lib/
+│   ├── tool-registry.js   <span class="bone"># 工具注册 + 扫描</span>
+│   └── manifest-schema.js <span class="iface"># Manifest 标准唯一真相源</span>
+├── tools/                 <span class="dim"># 各工具注册目录（42 工具）</span>
+├── tips/                  <span class="bone"># 操作日志</span>
+└── _runtime/              <span class="dim"># 临时文件</span>
+
+<span class="dim">~/.scheduler/</span>
+├── scheduler.js           <span class="bone"># 调度器（独立进程 :3100）</span>
+├── runner.js              <span class="bone"># 任务执行器</span>
+├── runtime-logger.js      <span class="bone"># 运行日志写入</span>
+├── scheduler-state.json   <span class="bone"># 运行时状态（调度器写，面板读）</span>
+├── crontab.txt            <span class="bone"># 全局定时定义</span>
+└── task-schema.json       <span class="iface"># 任务定义标准</span>
+│
+│   调度器是独立进程 + 独立目录。不寄生在面板下。
+│   系统调度守护 → 读 crontab.txt → 扫描项目 → 调 executor → 写 state.json。
+│   面板 server 只读 scheduler-state.json 做面板展示——不在执行路径上。</div>
+
+<h4>项目区（肉）目录结构</h4>
+<div class="tree"><span class="dim">&lt;workspace&gt;/</span>
+├── CLAUDE.md              <span class="meat"># workspace 级规范</span>
+│
+├── <span class="dim">项目名/</span>
+│   ├── CLAUDE.md          <span class="meat"># 项目宪法</span>
+│   ├── notebook/
+│   │   ├── health.json    <span class="iface"># 8 组件健康（唯一硬接口）</span>
+│   │   └── events.jsonl   <span class="meat"># 运行事件流</span>
+│   ├── alarm/
+│   │   └── crontab.txt    <span class="meat"># 项目级定时任务</span>
+│   ├── _runtime/          <span class="dim"># 临时文件</span>
+│   └── ...
+│
+├── <span class="dim">lab/项目名/</span>         <span class="dim"># 孵化期</span>
+└── <span class="dim">_archive/项目名/</span>     <span class="dim"># 归档期</span></div>
+
+<h3>4.2 八组件健康模型</h3>
+<div class="principle">
+  <div class="p-title">每个项目自评 8 个维度，写入 health.json。面板只读。</div>
+</div>
+
+<table>
+  <thead><tr><th>#</th><th>组件</th><th>检查什么</th><th>归于哪个骨</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><strong>闹钟</strong></td><td>定时任务有没有按时触发</td><td>③ scheduler</td></tr>
+    <tr><td>2</td><td><strong>工位</strong></td><td>执行模式：串行/并行，有无冲突</td><td>③ scheduler</td></tr>
+    <tr><td>3</td><td><strong>知识管理</strong></td><td>CLAUDE.md 存在 + memory + 踩坑警示</td><td>① claude</td></tr>
+    <tr><td>4</td><td><strong>电话线</strong></td><td>外部 API / 服务连接状态</td><td>② agentboard</td></tr>
+    <tr><td>5</td><td><strong>质检员</strong></td><td>产出是否经过独立验证（防自己判自己满分）</td><td>③ scheduler (巡检)</td></tr>
+    <tr><td>6</td><td><strong>记事本</strong></td><td>状态文件 + 事件日志是否写入</td><td>③ scheduler</td></tr>
+    <tr><td>7</td><td><strong>提报</strong></td><td>失败通知通道（飞书 / Slack / 邮件）</td><td>③ scheduler</td></tr>
+    <tr><td>8</td><td><strong>目标定义</strong></td><td>完成标准是否可验证（非自然语言）</td><td>① claude</td></tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.9em;color:var(--text-soft);">
+8 组件归入 3 骨，闭环。质检员 (inspector) 替代了独立 eval 骨的功能——操作日志 + cron 状态 + 漂移检测 = 当前的质检实现。
+</p>
+
+<h3>4.3 接口契约</h3>
+
+<table>
+  <thead><tr><th>接口</th><th>格式</th><th>谁写</th><th>谁读</th></tr></thead>
+  <tbody>
+    <tr><td>notebook/health.json</td><td>8 组件健康分 + today + escalation</td><td>巡检 cron job</td><td>loop monitor</td></tr>
+    <tr><td>tools/*/manifest.json</td><td>schema 定义字段（manifest-schema.js）</td><td>人 / agent 注册时写</td><td>agentboard + MCP</td></tr>
+    <tr><td>scheduler-state.json</td><td>任务运行状态</td><td>scheduler 写</td><td>面板只读</td></tr>
+    <tr><td>notebook/events.jsonl</td><td>逐行 JSON 事件流</td><td>runtime-logger 追加</td><td>巡检 / 审计</td></tr>
+  </tbody>
+</table>
+
+<div class="principle">
+  <div class="p-title">唯一硬接口：health.json</div>
+  任何工具通过这个文件读项目状态。不调 API，不连数据库，不依赖面板。文件在项目在。
+</div>
+
+<h3>4.4 备份体系</h3>
+<table>
+  <thead><tr><th>层级</th><th>内容</th><th>方式</th></tr></thead>
+  <tbody>
+    <tr><td>骨件级</td><td>~/.claude/ ~/.agentboard/ ~/.scheduler/</td><td>各自 git repo，独立 push</td></tr>
+    <tr><td>项目级</td><td>workspace 下各项目</td><td>各自 git repo，仓库清单见 repo-spec.md</td></tr>
+    <tr><td>产出级</td><td>第三方工具源码</td><td>D:\tools\ 下各自 git</td></tr>
+    <tr><td>统一仓库</td><td>F:\warehouse\inbox\</td><td>备份落盘 + 恢复验证</td></tr>
+  </tbody>
+</table>
+
+<div class="principle">
+  <div class="p-title">灾难恢复</div>
+  新机 → git clone 三骨 → git clone 项目 → 各骨 README/setup → 跑起来。不建 bootstrap 骨——各骨的 setup 各管各的，不派生第四个目录来复述前三者。
+</div>
+
+</div>
+</div>
+
+<!-- ==================== 5. 分阶段施工 ==================== -->
+<h2 id="build">5. 分阶段施工</h2>
+
+<div class="chapter-tldr">
+<div class="tldr-header">
+  <span class="tldr-label">核心结论</span>
+  <h3>止血 → 补基 → 标准化 → 自愈</h3>
+  <p>四阶段演进。不是瀑布——前一阶段完成再进下一阶段。</p>
+</div>
+<div class="tldr-body">
+
+<table>
+  <thead><tr><th>Phase</th><th>目标</th><th>关键任务</th><th>当前状态</th></tr></thead>
+  <tbody>
+    <tr><td style="color:#DC2626;font-weight:bold;">0 · 止血</td><td>修复已知问题</td><td>tokens 提取、stderr 日志、成功判定改为"产出文件存在"、workspace 级 CLAUDE.md</td><td class="good">已完成</td></tr>
+    <tr><td style="color:#CA8A04;font-weight:bold;">1 · 补基</td><td>基础设施就位</td><td>三骨 git init、巡检 cron job、manifest schema、面板联邦健康</td><td class="good">进行中（巡检 cron 待建）</td></tr>
+    <tr><td style="color:#2563EB;font-weight:bold;">2 · 标准化</td><td>接入统一标准</td><td>旧项目迁移、项目模板生成器、审计完善</td><td>待开始</td></tr>
+    <tr><td style="color:#16A34A;font-weight:bold;">3 · 自愈</td><td>基础自愈 + 面板</td><td>≥3 种故障自愈、联邦健康面板、异地备份恢复测试</td><td>待开始</td></tr>
+  </tbody>
+</table>
+
+<h4>施工纪律</h4>
+<ol>
+  <li>每项任务改前备份</li>
+  <li>改完立即验证，不攒到 Phase 结束时验</li>
+  <li>验证不过不进下一项</li>
+  <li>触及承重墙 → 停，先讨论</li>
+  <li>每个 Phase 结束后更新 health.json score</li>
+</ol>
+
+</div>
+</div>
+
+<!-- ==================== 6. 决策记录 ==================== -->
+<h2 id="log">6. 决策记录</h2>
+
+<div class="chapter-tldr">
+<div class="tldr-header">
+  <span class="tldr-label">核心结论</span>
+  <h3>十二项已决</h3>
+  <p>每个决策对应一个曾经存在的分叉路口。以后有新信息可以重开——但有意识地改，不是无意间漂移。</p>
+</div>
+<div class="tldr-body">
+
+<table>
+  <thead><tr><th>#</th><th>决策</th><th>理由</th></tr></thead>
+  <tbody>
+    <tr><td>D-01</td><td>联邦制，排除集中式</td><td>集中式 = 面板单点故障；项目无法独立运行</td></tr>
+    <tr><td>D-02</td><td>薄工具架胜出</td><td>Karpathy 四标准 4/4 全胜。定义在项目，执行独立，面板做可见性</td></tr>
+    <tr><td>D-03</td><td>五组件归属各归其位</td><td>安全 + 解耦 + 并行安全</td></tr>
+    <tr><td>D-04</td><td>唯一硬接口：notebook/health.json</td><td>任何工具通过文件读项目状态，不调 API</td></tr>
+    <tr><td>D-05</td><td>架构文档按推导链重排</td><td>参考 → 分析 → 目标 → 选型 → 设计 → 施工 → 决策</td></tr>
+    <tr><td>D-06</td><td>文件管理规范从架构分离</td><td>架构聚焦系统设计；文件管理升到 workspace 级</td></tr>
+    <tr><td>D-07</td><td>方案选型只比两个真正可选的方案</td><td>不拿集中式当靶子；不搞伪二选一</td></tr>
+    <tr><td>D-08</td><td>产出物统一存放，不进项目生命周期</td><td>产出物（文章/图片/视频）不是项目</td></tr>
+    <tr><td>D-09</td><td>巡检规则独立设计</td><td>覆盖 git / 备份 / 产出 / 日志 / 磁盘 / 交叉验证</td></tr>
+    <tr><td>D-10</td><td>生命周期边界改为目录位置</td><td>lab/ → 根目录 → _archive/，人决定搬移时机</td></tr>
+    <tr><td>D-11</td><td>工具源码统一位置，与注册表分离</td><td>注册表（~/.agentboard/tools/）和源码分离</td></tr>
+    <tr><td style="color:var(--accent);">D-12</td><td style="color:var(--accent);"><strong>六骨坍缩为三骨</strong></td><td style="color:var(--accent);">eval = 巡检覆盖，等痛点再补二元断言。guardrails = 宪法 + 权限弹窗已够。bootstrap = 派生品不配当骨。各骨 setup 自管。2026-06-22</td></tr>
+  </tbody>
+</table>
+
+</div>
+</div>
+
+</main>
+
+<script>
+const navLinks = document.querySelectorAll('nav a');
+const sections = [...navLinks].map(a => document.querySelector(a.getAttribute('href')));
+window.addEventListener('scroll', () => {
+  let idx = sections.findIndex(s => s && s.getBoundingClientRect().top > 120);
+  if (idx === -1) idx = sections.length;
+  idx = Math.max(0, idx - 1);
+  navLinks.forEach(a => a.classList.remove('active'));
+  if (idx < navLinks.length) navLinks[idx].classList.add('active');
+});
+</script>
+
+</body></html>
